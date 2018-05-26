@@ -11,6 +11,7 @@ defmodule HdmiSwitch.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: HdmiSwitch.Supervisor]
+    Process.sleep(10000)
     Supervisor.start_link(children(@target), opts)
   end
 
@@ -24,8 +25,7 @@ defmodule HdmiSwitch.Application do
 
   def children(_target) do
     [
-      # Starts a worker by calling: HdmiSwitch.Worker.start_link(arg)
-      # {HdmiSwitch.Worker, arg},
+      HdmiSwitch.MainSupervisor
     ]
   end
 end
