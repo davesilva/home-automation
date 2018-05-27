@@ -1,6 +1,9 @@
 require 'mqtt'
 require 'httparty'
 
+$stdout.sync = true
+Thread.abort_on_exception = true
+
 BROKER_HOST = ENV['BROKER_HOST']
 VOLUME_HOST = ENV['VOLUME_HOST']
 

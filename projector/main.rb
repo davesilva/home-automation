@@ -1,6 +1,9 @@
 require 'mqtt'
 require 'httparty'
 
+$stdout.sync = true
+Thread.abort_on_exception = true
+
 BROKER_HOST = ENV['BROKER_HOST']
 PROJECTOR_HOST = ENV['PROJECTOR_HOST']
 
@@ -28,21 +31,23 @@ def projector_login
   cookies = nil
 
   while cookies.nil?
+    puts "host=#{PROJECTOR_HOST} status=logging_in"
     response = HTTParty.post("http://#{PROJECTOR_HOST}/tgi/login.tgi",
                              body: { "Username" => 1 })
     cookies = response.headers['Set-Cookie']&.split(';')
   end
 
-  cookies&.find { |cookie| cookie.start_with?('ATOP=') }
+  puts "host=#{PROJECTOR_HOST} status=logged_in"
+  cookies.find { |cookie| cookie.start_with?('ATOP=') }
 end
 
-puts "Attempting to connect to #{BROKER_HOST}"
+puts "host=#{BROKER_HOST} status=connecting"
 MQTT::Client.connect(BROKER_HOST) do |client|
-  puts "Connected to #{BROKER_HOST}"
+  puts "host=#{BROKER_HOST} status=connected"
 
-  puts "Attempting to connect to projector at #{PROJECTOR_HOST}"
+  puts "host=#{PROJECTOR_HOST} status=connecting"
   auth_token = projector_login
-  puts "Connected to #{PROJECTOR_HOST}"
+  puts "host=#{PROJECTOR_HOST} status=connected"
 
   Thread.new do
     old_power, old_input = nil
@@ -66,11 +71,15 @@ MQTT::Client.connect(BROKER_HOST) do |client|
   client.get('home/projector/+') do |topic, message|
     case topic.split('/').last
     when 'setInput'
+      puts "topic=#{topic} input=#{message}"
       projector_post(auth_token, src: message)
     when 'setPower'
+      puts "topic=#{topic} power=#{message}"
       if message == 'true'
         projector_post(auth_token, pwr: 'Power ON')
       else
+        projector_post(auth_token, pwr: 'Power OFF')
+        sleep 1
         projector_post(auth_token, pwr: 'Power OFF')
       end
     end
