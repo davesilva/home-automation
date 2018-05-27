@@ -4,10 +4,8 @@ require 'httparty'
 BROKER_HOST = ENV['BROKER_HOST']
 VOLUME_HOST = ENV['VOLUME_HOST']
 
-def publish_speaker_data(client)
-  data = HTTParty.get("http://#{VOLUME_HOST}/speakers")
-  client.publish('home/speakers/power', data['power'], retain: true)
-  client.publish('home/speakers/volume', data['volume'], retain: true)
+def get_speaker_data
+  HTTParty.get("http://#{VOLUME_HOST}/speakers")
 end
 
 def update_speakers(body)
@@ -19,9 +17,21 @@ MQTT::Client.connect(BROKER_HOST) do |client|
   puts "host=#{BROKER_HOST} status=connected"
 
   Thread.new do
+    old_power, old_volume = nil
+
     loop do
-      publish_speaker_data(client)
-      sleep 5
+      response = get_speaker_data
+
+      power = response['power']
+      volume = response['volume']
+
+      client.publish('home/speakers/power', power, retain: true) if power != old_power
+      client.publish('home/speakers/volume', volume, retain: true) if volume != old_volume
+
+      old_power = power
+      old_volume = volume
+
+      sleep 2
     end
   end
 
@@ -31,12 +41,10 @@ MQTT::Client.connect(BROKER_HOST) do |client|
       power = message == 'true'
       puts "topic=#{topic} power=#{power}"
       update_speakers(power: power)
-      publish_speaker_data(client)
     when 'setVolume'
       volume = message.to_i
       puts "topic=#{topic} volume=#{volume}"
       update_speakers(power: true, volume: volume)
-      publish_speaker_data(client)
     end
   end
 end
