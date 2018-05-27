@@ -4,6 +4,16 @@ require 'httparty'
 BROKER_HOST = ENV['BROKER_HOST']
 PROJECTOR_HOST = ENV['PROJECTOR_HOST']
 
+# The projector does a weird thing where when it returns the
+# source number to you it's different from the number you
+# set. This maps those returned numbers back to the
+# normal ones.
+SOURCE_MAPPING = { 6 => 1, 21 => 2, 22 => 3 }
+
+def parse_response(response)
+  JSON.parse(response.to_s.gsub(/(\w*):/, '"\1":'), symbolize_names: true)
+end
+
 def projector_post(auth_token, data)
   HTTParty.post("http://#{PROJECTOR_HOST}/tgi/control.tgi",
                 body: data,
@@ -11,15 +21,18 @@ def projector_post(auth_token, data)
 end
 
 def projector_query(auth_token)
-  response = projector_post(auth_token, { 'QueryControl' => '' })
-  puts response
-  puts response['pwr']
+  parse_response(projector_post(auth_token, { 'QueryControl' => '' }))
 end
 
 def projector_login
-  response = HTTParty.post("http://#{PROJECTOR_HOST}/tgi/login.tgi",
-                           body: { "Username" => 1 })
-  cookies = response.headers['Set-Cookie']&.split(';')
+  cookies = nil
+
+  while cookies.nil?
+    response = HTTParty.post("http://#{PROJECTOR_HOST}/tgi/login.tgi",
+                             body: { "Username" => 1 })
+    cookies = response.headers['Set-Cookie']&.split(';')
+  end
+
   cookies&.find { |cookie| cookie.start_with?('ATOP=') }
 end
 
@@ -32,21 +45,34 @@ MQTT::Client.connect(BROKER_HOST) do |client|
   puts "Connected to #{PROJECTOR_HOST}"
 
   Thread.new do
+    old_power, old_input = nil
+
     loop do
-      projector_query(auth_token)
+      response = projector_query(auth_token)
+
+      power = response[:pwr] == '1'
+      input = SOURCE_MAPPING[response[:src].to_i]
+
+      client.publish('home/projector/power', power, retain: true) if power != old_power
+      client.publish('home/projector/input', input, retain: true) if input != old_input
+
+      old_power = power
+      old_input = input
+
       sleep 2
     end
   end
 
-  client.get('home/projector/setInput') do |_, message|
-    projector_post(auth_token, src: message)
-  end
-
-  client.get('home/projector/setPower') do |_, message|
-    if message == 'true'
-      projector_post(auth_token, pwr: 'Power ON')
-    else
-      projector_post(auth_token, pwr: 'Power OFF')
+  client.get('home/projector/+') do |topic, message|
+    case topic.split('/').last
+    when 'setInput'
+      projector_post(auth_token, src: message)
+    when 'setPower'
+      if message == 'true'
+        projector_post(auth_token, pwr: 'Power ON')
+      else
+        projector_post(auth_token, pwr: 'Power OFF')
+      end
     end
   end
 end

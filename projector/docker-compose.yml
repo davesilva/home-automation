@@ -1,0 +1,9 @@
+version: '3.6'
+services:
+  mqtt_bridge:
+    image: davesilva/home-automation-projector:${TAG:-latest}
+    build:
+      context: .
+    environment:
+      - BROKER_HOST=192.168.1.8
+      - PROJECTOR_HOST=192.168.1.11
