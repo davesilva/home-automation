@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+  <head>
+    <title>volume.xxx</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <!-- Bootstrap TouchSpin plugin -->
+    <link rel="stylesheet" href="lib/touchspin.css">
+
+    <style>
+     .bootstrap-touchspin {
+       max-width: 300px;
+     }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- jQuery -->
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap TouchSpin plugin -->
+    <script src="lib/touchspin.js"></script>
+
+    <!-- MQTT.js -->
+    <script src="lib/mqtt.js"></script>
+
+    <!-- Application script -->
+    <script type="module" src="index.js"></script>
+
+    <div class="container" id="main">
+      <h1> Speakers </h1>
+
+      <form id="speakers_form">
+        <div class="form-group">
+          <label class="radio-inline">
+            <input type="radio" name="speaker_power" value="true"/>
+            On
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="speaker_power" value="false"/>
+            Off
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>
+            Volume
+            <input class="form-control input-lg" type="text" name="speaker_volume"/>
+          </label>
+        </div>
+      </form>
+
+      <h1> Projector </h1>
+
+      <form id="projector_form">
+        <div class="form-group">
+          <label class="radio-inline">
+            <input type="radio" name="projector_power" value="true"/>
+            On
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="projector_power" value="false"/>
+            Off
+          </label>
+        </div>
+      </form>
+
+      <h1> Input </h1>
+
+      <form>
+        <div class="form-group">
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="1" />
+            <span class="hdmi-input-label">1</span>
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="2" />
+            <span class="hdmi-input-label">2</span>
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="3" />
+            <span class="hdmi-input-label">3</span>
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="4" />
+            <span class="hdmi-input-label">4</span>
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="5" />
+            <span class="hdmi-input-label">5</span>
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="6" />
+            <span class="hdmi-input-label">6</span>
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="7" />
+            <span class="hdmi-input-label">7</span>
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio" name="hdmi_input" value="8" />
+            <span class="hdmi-input-label">8</span>
+          </label>
+        </div>
+      </form>
+    </div>
+
+  </body>
+
+</html>

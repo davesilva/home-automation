@@ -1,0 +1,8 @@
+version: '3.6'
+services:
+  web:
+    image: davesilva/home-automation-web:${TAG:-latest}
+    build:
+      context: .
+    ports:
+      - "8080:80"
