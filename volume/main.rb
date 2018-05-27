@@ -10,18 +10,33 @@ def publish_speaker_data(client)
   client.publish('home/speakers/volume', data['volume'], retain: true)
 end
 
-puts "Attempting to connect to #{BROKER_HOST}"
-MQTT::Client.connect(BROKER_HOST) do |client|
-  puts "Connected to #{BROKER_HOST}"
+def update_speakers(body)
+  HTTParty.post("http://#{VOLUME_HOST}/speakers", body: body)
+end
 
-  client.get('home/speakers/setVolume') do |_, message|
-    HTTParty.post("http://#{VOLUME_HOST}/speakers", body: { volume: message.to_i,
-                                                            power: true })
-    publish_speaker_data(client)
+puts "host=#{BROKER_HOST} status=connecting"
+MQTT::Client.connect(BROKER_HOST) do |client|
+  puts "host=#{BROKER_HOST} status=connected"
+
+  Thread.new do
+    loop do
+      publish_speaker_data(client)
+      sleep 5
+    end
   end
 
-  client.get('home/speakers/setPower') do |_, message|
-    HTTParty.post("http://#{VOLUME_HOST}/speakers", body: { power: message == 'true' })
-    publish_speaker_data(client)
+  client.get('home/speakers/+') do |topic, message|
+    case topic.split('/').last
+    when 'setPower'
+      power = message == 'true'
+      puts "topic=#{topic} power=#{power}"
+      update_speakers(power: power)
+      publish_speaker_data(client)
+    when 'setVolume'
+      volume = message.to_i
+      puts "topic=#{topic} volume=#{volume}"
+      update_speakers(power: true, volume: volume)
+      publish_speaker_data(client)
+    end
   end
 end
