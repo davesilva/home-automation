@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: volume-mqtt-bridge
+  namespace: home-automation
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: volume-mqtt-bridge
+    spec:
+      containers:
+      - name: volume-mqtt-bridge
+        image: davesilva/home-automation-volume:1.0.1
+        imagePullPolicy: Always
+        env:
+        - name: VOLUME_HOST
+          value: volume-control
+        - name: BROKER_HOST
+          value: mosquitto.default
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: volume-control
+  namespace: home-automation
+spec:
+  type: ExternalName
+  externalName: 192.168.1.10

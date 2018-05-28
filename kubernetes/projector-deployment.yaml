@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: projector-mqtt-bridge
+  namespace: home-automation
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: projector-mqtt-bridge
+    spec:
+      containers:
+      - name: projector-mqtt-bridge
+        image: davesilva/home-automation-projector:1.0.2
+        imagePullPolicy: Always
+        env:
+        - name: PROJECTOR_HOST
+          value: projector
+        - name: BROKER_HOST
+          value: mosquitto.default
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: projector
+  namespace: home-automation
+spec:
+  type: ExternalName
+  externalName: 192.168.1.11
