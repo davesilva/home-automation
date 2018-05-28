@@ -13,7 +13,7 @@ defmodule HdmiSwitch.Main do
     {:ok, mqtt_client} = MqttClient.start_link(%{parent: self()})
     {:ok, uart} = Nerves.UART.start_link
 
-    Process.send_after(self(), :connect, 200)
+    Process.send_after(self(), :connect, 2000)
     IO.puts "Finished init"
 
     {:ok, %{mqtt_client: mqtt_client, uart: uart}}
@@ -31,28 +31,31 @@ defmodule HdmiSwitch.Main do
   def handle_info(:connect, state) do
     IO.puts "About to connect MQTT"
     :ok = MqttClient.connect(state.mqtt_client, client_id: "hdmi-switch", host: "192.168.1.8", port: 1883)
+    :ok = MqttClient.publish(state.mqtt_client, topic: "home/hdmiSwitch/mqtt", dup: 0, message: "connected", qos: 0, retain: 0)
+
     IO.puts "About to connect UART"
-    :ok = Nerves.UART.open(state.uart, "ttyUSB0", speed: 19200, active: false, framing: {Nerves.UART.Framing.Line, separator: "\r\n"})
+    :ok = Nerves.UART.open(state.uart, "ttyUSB0", speed: 19200, active: true, framing: {Nerves.UART.Framing.Line, separator: "\r\n"})
+    :ok = MqttClient.publish(state.mqtt_client, topic: "home/hdmiSwitch/uart", dup: 0, message: "connected", qos: 0, retain: 0)
+
     IO.puts "Connected"
 
     {:noreply, state}
   end
 
+  def handle_info({:nerves_uart, _port, message}, state) do
+    :ok = MqttClient.publish(state.mqtt_client, topic: "home/hdmiSwitch/uart", dup: 0, message: message, qos: 0, retain: 0)
+    {:noreply, state}
+  end
+
   def handle_info(:connected, state) do
     MqttClient.subscribe(state.mqtt_client, topics: ["home/hdmiSwitch/setInput"], qoses: [1])
+    :ok = Nerves.UART.write(state.uart, "swmode default")
     {:noreply, state}
   end
 
   def handle_info(%{channel: "home/hdmiSwitch/setInput", message: message}, state) do
     :ok = Nerves.UART.write(state.uart, "swi0#{message}")
-    {:ok, _reply} = Nerves.UART.read(state.uart)
     :ok = MqttClient.publish(state.mqtt_client, topic: "home/hdmiSwitch/input", dup: 0, message: message, qos: 1, retain: 1)
-    {:noreply, state}
-  end
-
-  def handle_info(data, state) do
-    IO.inspect(data.channel)
-    IO.inspect(data.message)
     {:noreply, state}
   end
 end
