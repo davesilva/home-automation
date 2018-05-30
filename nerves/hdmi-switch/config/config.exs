@@ -23,7 +23,7 @@ config :logger, RingLogger, max_size: 100
 # Set up SSH authorized keys for pushing firmware to the device.
 config :nerves_firmware_ssh,
   authorized_keys: [
-    File.read!(Path.join(System.user_home!, ".ssh/id_rsa.pub"))
+    File.read!(Path.join(System.user_home!(), ".ssh/id_rsa.pub"))
   ]
 
 # Configure Wifi

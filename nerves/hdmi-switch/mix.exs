@@ -57,6 +57,7 @@ defmodule HdmiSwitch.MixProject do
   defp system("hdmi_switch_rpi") do
     [{:hdmi_switch_system_rpi, path: '../hdmi-switch-system-rpi', runtime: false}]
   end
+
   defp system("rpi"), do: [{:nerves_system_rpi, "~> 1.0 or ~> 1.0-rc", runtime: false}]
   defp system("rpi0"), do: [{:nerves_system_rpi0, "~> 1.0 or ~> 1.0-rc", runtime: false}]
   defp system("rpi2"), do: [{:nerves_system_rpi2, "~> 1.0 or ~> 1.0-rc", runtime: false}]
