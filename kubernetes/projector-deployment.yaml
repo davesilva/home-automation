@@ -18,7 +18,7 @@ spec:
         - name: PROJECTOR_HOST
           value: projector
         - name: BROKER_HOST
-          value: mosquitto.default
+          value: mosquitto
 ---
 kind: Service
 apiVersion: v1

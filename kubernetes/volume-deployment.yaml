@@ -18,7 +18,7 @@ spec:
         - name: VOLUME_HOST
           value: volume-control
         - name: BROKER_HOST
-          value: mosquitto.default
+          value: mosquitto
 ---
 kind: Service
 apiVersion: v1
