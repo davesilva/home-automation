@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: snips-action-handlers
+  namespace: home-automation
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: snips-action-handlers
+    spec:
+      containers:
+      - name: snips-action-handlers
+        image: davesilva/home-automation-snips-action-handlers:1.0.0
+        imagePullPolicy: Always
+        env:
+        - name: BROKER_HOST
+          value: mosquitto
