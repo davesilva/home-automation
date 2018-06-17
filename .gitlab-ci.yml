@@ -7,7 +7,7 @@ services:
 - docker:dind
 
 before_script:
-- echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
+- mkdir -p $HOME/.docker && echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
 
 build-projector:
   variables:
