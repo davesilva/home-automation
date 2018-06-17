@@ -1,0 +1,219 @@
+{
+  "entityNameToFilename": {
+    "videoInput": "e_0.snips", 
+    "qualitativeAmount": "e_1.snips", 
+    "snips/number": "e_2.snips"
+  }, 
+  "injectionsEngine": {
+    "version": 1
+  }, 
+  "language": "en", 
+  "decoderConfig": {
+    "useFinalProbs": true, 
+    "latticeBeamSize": 1.0, 
+    "maxActive": 2000, 
+    "minActive": 200, 
+    "acousticScale": 0.83, 
+    "beamSize": 10.0
+  }, 
+  "cacheSizeDynamic": 536870912, 
+  "asrModel": {
+    "version": "0.1.0"
+  }, 
+  "asrLmAdaptation": {
+    "version": "0.9.2"
+  }, 
+  "endpointingRules": {
+    "rule3": {
+      "maxRelativeCost": 8.0, 
+      "minTrailingSilence": 1.0, 
+      "minUtteranceLength": 0.0, 
+      "mustContainNonsilence": true
+    }, 
+    "rule2": {
+      "maxRelativeCost": 3.5, 
+      "minTrailingSilence": 0.5, 
+      "minUtteranceLength": 0.0, 
+      "mustContainNonsilence": true
+    }, 
+    "rule1": {
+      "maxRelativeCost": 10000000000.0, 
+      "minTrailingSilence": 4.0, 
+      "minUtteranceLength": 0.0, 
+      "mustContainNonsilence": false
+    }, 
+    "rule5": {
+      "maxRelativeCost": 10000000000.0, 
+      "minTrailingSilence": 0.0, 
+      "minUtteranceLength": 10.0, 
+      "mustContainNonsilence": false
+    }, 
+    "rule4": {
+      "maxRelativeCost": 10000000000.0, 
+      "minTrailingSilence": 2.0, 
+      "minUtteranceLength": 0.0, 
+      "mustContainNonsilence": true
+    }
+  }, 
+  "postprocessors": [
+    {
+      "Regex": {
+        "pattern": "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`START .[^`]*? `8ee1ae17-254f-49ed-8eba-bea63bf9b74c`DECOY`EMPTY `8ee1ae17-254f-49ed-8eba-bea63bf9b74c`END", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`START .[^`]*? `8ee1ae17-254f-49ed-8eba-bea63bf9b74c`DECOY`INSIDE .*? `8ee1ae17-254f-49ed-8eba-bea63bf9b74c`END`DECOY `8ee1ae17-254f-49ed-8eba-bea63bf9b74c`END", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`START`DECOY (.*?) `8ee1ae17-254f-49ed-8eba-bea63bf9b74c`END`DECOY", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`START (.*?) `8ee1ae17-254f-49ed-8eba-bea63bf9b74c`END", 
+        "flags": "i", 
+        "replacement": "$1"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`START ", 
+        "flags": "i", 
+        "replacement": ""
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`a5582225-d34a-4b31-845e-ddc118882042`START .[^`]*? `a5582225-d34a-4b31-845e-ddc118882042`DECOY`EMPTY `a5582225-d34a-4b31-845e-ddc118882042`END", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`a5582225-d34a-4b31-845e-ddc118882042`START .[^`]*? `a5582225-d34a-4b31-845e-ddc118882042`DECOY`INSIDE .*? `a5582225-d34a-4b31-845e-ddc118882042`END`DECOY `a5582225-d34a-4b31-845e-ddc118882042`END", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`a5582225-d34a-4b31-845e-ddc118882042`START`DECOY (.*?) `a5582225-d34a-4b31-845e-ddc118882042`END`DECOY", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`a5582225-d34a-4b31-845e-ddc118882042`START (.*?) `a5582225-d34a-4b31-845e-ddc118882042`END", 
+        "flags": "i", 
+        "replacement": "$1"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`a5582225-d34a-4b31-845e-ddc118882042`START ", 
+        "flags": "i", 
+        "replacement": ""
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`START .[^`]*? `bce0cd4e-ecaf-4278-9382-12d8f2fdd632`DECOY`EMPTY `bce0cd4e-ecaf-4278-9382-12d8f2fdd632`END", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`START .[^`]*? `bce0cd4e-ecaf-4278-9382-12d8f2fdd632`DECOY`INSIDE .*? `bce0cd4e-ecaf-4278-9382-12d8f2fdd632`END`DECOY `bce0cd4e-ecaf-4278-9382-12d8f2fdd632`END", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`START`DECOY (.*?) `bce0cd4e-ecaf-4278-9382-12d8f2fdd632`END`DECOY", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`START (.*?) `bce0cd4e-ecaf-4278-9382-12d8f2fdd632`END", 
+        "flags": "i", 
+        "replacement": "$1"
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`START ", 
+        "flags": "i", 
+        "replacement": ""
+      }
+    }, 
+    {
+      "Regex": {
+        "pattern": "`PATTERN`DECOY`START .*? `PATTERN`DECOY`END", 
+        "flags": "i", 
+        "replacement": "unknownword"
+      }
+    }
+  ], 
+  "asrEngine": {
+    "version": "0.1.0"
+  }, 
+  "entitiesFstMap": [
+    [
+      298, 
+      "__root__"
+    ], 
+    [
+      299, 
+      "e_0.snips"
+    ], 
+    [
+      300, 
+      "e_1.snips"
+    ], 
+    [
+      301, 
+      "e_2.snips"
+    ]
+  ], 
+  "entityNameToDisambigs": {
+    "videoInput": {
+      "start": "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`START", 
+      "end": "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`END", 
+      "empty": [
+        "`8ee1ae17-254f-49ed-8eba-bea63bf9b74c`DECOY`EMPTY", 
+        4
+      ]
+    }, 
+    "qualitativeAmount": {
+      "start": "`a5582225-d34a-4b31-845e-ddc118882042`START", 
+      "end": "`a5582225-d34a-4b31-845e-ddc118882042`END", 
+      "empty": [
+        "`a5582225-d34a-4b31-845e-ddc118882042`DECOY`EMPTY", 
+        4
+      ]
+    }, 
+    "snips/number": {
+      "start": "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`START", 
+      "end": "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`END", 
+      "empty": [
+        "`bce0cd4e-ecaf-4278-9382-12d8f2fdd632`DECOY`EMPTY", 
+        4
+      ]
+    }
+  }
+}

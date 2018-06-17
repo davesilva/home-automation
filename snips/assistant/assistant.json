@@ -1,0 +1,79 @@
+{
+  "id" : "proj_Z18gW33Y6z8",
+  "name" : "NEWD.js Assistant",
+  "intents" : [ {
+    "id" : "davesilva:screenOff",
+    "type" : "registry",
+    "version" : "0.0.40",
+    "language" : "en",
+    "slots" : [ ],
+    "name" : "screenOff"
+  }, {
+    "id" : "davesilva:switchVideoInput",
+    "type" : "registry",
+    "version" : "0.0.35",
+    "language" : "en",
+    "slots" : [ {
+      "name" : "inputName",
+      "id" : "BJYNVpnYM",
+      "entityId" : "entity_89dYzrGveg8",
+      "missingQuestion" : "",
+      "required" : false,
+      "description" : "The HDMI video input"
+    }, {
+      "name" : "inputNumber",
+      "id" : "BJothikWX",
+      "entityId" : "numbers.number",
+      "missingQuestion" : "",
+      "required" : false
+    } ],
+    "name" : "switchVideoInput"
+  }, {
+    "id" : "davesilva:volumeDown",
+    "type" : "registry",
+    "version" : "0.0.13",
+    "language" : "en",
+    "slots" : [ {
+      "name" : "amount",
+      "id" : "HyckKaptM",
+      "entityId" : "entity_60XkOY93E0d",
+      "missingQuestion" : "",
+      "required" : false
+    } ],
+    "name" : "volumeDown"
+  }, {
+    "id" : "davesilva:screenOn",
+    "type" : "registry",
+    "version" : "0.0.10",
+    "language" : "en",
+    "slots" : [ ],
+    "name" : "screenOn"
+  }, {
+    "id" : "davesilva:volumeUp",
+    "type" : "registry",
+    "version" : "0.0.19",
+    "language" : "en",
+    "slots" : [ {
+      "name" : "amount",
+      "id" : "BJLNmsaFz",
+      "entityId" : "entity_60XkOY93E0d",
+      "missingQuestion" : "",
+      "required" : false
+    } ],
+    "name" : "volumeUp"
+  } ],
+  "createdAt" : "2018-03-17T05:06:01.897Z",
+  "language" : "en",
+  "version" : {
+    "nluModel" : "0.15.0"
+  },
+  "platform" : {
+    "type" : "raspberrypi"
+  },
+  "asr" : {
+    "type" : "snips"
+  },
+  "analyticsEnabled" : true,
+  "heartbeatEnabled" : true,
+  "hotword" : "hey_snips"
+}
