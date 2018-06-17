@@ -10,12 +10,15 @@ before_script:
 - mkdir -p $HOME/.docker && echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
 
 build-projector:
+  tags:
+    - arm
+    - docker
   variables:
     IMAGE: davesilva/home-automation-projector
   stage: build
   script:
   - docker info
-  - docker pull $IMAGE:latest || true
-  - docker build --cache-from $IMAGE:latest --tag $IMAGE:$CI_BUILD_REF --tag $IMAGE:latest projector
-  - docker push $IMAGE:$CI_BUILD_REF
-  - docker push $IMAGE:latest
+  - docker pull $IMAGE:latest-linux-arm-v7 || true
+  - docker build --cache-from $IMAGE:latest --tag $IMAGE:$CI_BUILD_REF-linux-arm-v7 --tag $IMAGE:latest-linux-arm-v7 projector
+  - docker push $IMAGE:$CI_BUILD_REF-linux-arm-v7
+  - docker push $IMAGE:latest-linux-arm-v7
