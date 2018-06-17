@@ -7,9 +7,15 @@ services:
 - docker:dind
 
 before_script:
-- docker info
+- echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
 
 build-projector:
+  variables:
+    IMAGE: davesilva/home-automation-projector
   stage: build
   script:
-  - docker build -t davesilva/home-automation-projector:1.0.2 projector
+  - docker info
+  - docker pull $IMAGE:latest || true
+  - docker build --cache-from $IMAGE:latest --tag $IMAGE:$CI_BUILD_REF --tag $IMAGE:latest projector
+  - docker push $IMAGE:$CI_BUILD_REF
+  - docker push $IMAGE:latest
