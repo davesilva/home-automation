@@ -7,18 +7,51 @@ services:
 - docker:dind
 
 before_script:
+- docker info
 - mkdir -p $HOME/.docker && echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
 
-build-projector:
+build-projector: &build-job
   tags:
     - arm
     - docker
   variables:
     IMAGE: davesilva/home-automation-projector
+    DOCKER_CONTEXT: projector
+    OS_ARCH: linux-arm-v7
   stage: build
   script:
-  - docker info
-  - docker pull $IMAGE:latest-linux-arm-v7 || true
-  - docker build --cache-from $IMAGE:latest --tag $IMAGE:$CI_BUILD_REF-linux-arm-v7 --tag $IMAGE:latest-linux-arm-v7 projector
-  - docker push $IMAGE:$CI_BUILD_REF-linux-arm-v7
-  - docker push $IMAGE:latest-linux-arm-v7
+  - docker pull $IMAGE:latest-$OS_ARCH || true
+  - |
+    docker build --cache-from $IMAGE:latest \
+                 --tag $IMAGE:$CI_BUILD_REF-$OS_ARCH \
+                 --tag $IMAGE:latest-$OS_ARCH $DOCKER_CONTEXT
+  - docker push $IMAGE:$CI_BUILD_REF-$OS_ARCH
+  - docker push $IMAGE:latest-$OS_ARCH
+
+build-volume:
+  <<: *build-job
+  variables:
+    IMAGE: davesilva/home-automation-volume
+    DOCKER_CONTEXT: volume
+    OS_ARCH: linux-arm-v7
+
+build-web:
+  <<: *build-job
+  variables:
+    IMAGE: davesilva/home-automation-web
+    DOCKER_CONTEXT: web
+    OS_ARCH: linux-arm-v7
+
+build-snips-action-handlers:
+  <<: *build-job
+  variables:
+    IMAGE: davesilva/home-automation-snips-action-handlers
+    DOCKER_CONTEXT: snips-action-handlers
+    OS_ARCH: linux-arm-v7
+
+build-mosquitto:
+  <<: *build-job
+  variables:
+    IMAGE: davesilva/home-automation-mosquitto
+    DOCKER_CONTEXT: mosquitto
+    OS_ARCH: linux-arm-v7
