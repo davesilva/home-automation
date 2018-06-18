@@ -10,7 +10,7 @@ before_script:
 - docker info
 - mkdir -p $HOME/.docker && echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
 
-build-projector: &build-job
+build-projector-arm: &build-job-arm
   tags:
     - arm
     - docker
@@ -28,30 +28,68 @@ build-projector: &build-job
   - docker push $IMAGE:$CI_BUILD_REF-$OS_ARCH
   - docker push $IMAGE:latest-$OS_ARCH
 
-build-volume:
-  <<: *build-job
+build-volume-arm:
+  <<: *build-job-arm
   variables:
     IMAGE: davesilva/home-automation-volume
     DOCKER_CONTEXT: volume
     OS_ARCH: linux-arm-v7
 
-build-web:
-  <<: *build-job
+build-web-arm:
+  <<: *build-job-arm
   variables:
     IMAGE: davesilva/home-automation-web
     DOCKER_CONTEXT: web
     OS_ARCH: linux-arm-v7
 
-build-snips-action-handlers:
-  <<: *build-job
+build-snips-action-handlers-arm:
+  <<: *build-job-arm
   variables:
     IMAGE: davesilva/home-automation-snips-action-handlers
     DOCKER_CONTEXT: snips-action-handlers
     OS_ARCH: linux-arm-v7
 
-build-mosquitto:
-  <<: *build-job
+build-mosquitto-arm:
+  <<: *build-job-arm
   variables:
     IMAGE: davesilva/home-automation-mosquitto
     DOCKER_CONTEXT: mosquitto
     OS_ARCH: linux-arm-v7
+
+build-projector-amd64: &build-job-amd64
+  <<: *build-job-arm
+  tags:
+    - shared
+    - docker
+  variables:
+    IMAGE: davesilva/home-automation-projector
+    DOCKER_CONTEXT: projector
+    OS_ARCH: linux-amd64
+
+build-volume-amd64:
+  <<: *build-job-amd64
+  variables:
+    IMAGE: davesilva/home-automation-volume
+    DOCKER_CONTEXT: volume
+    OS_ARCH: linux-amd64
+
+build-web-amd64:
+  <<: *build-job-amd64
+  variables:
+    IMAGE: davesilva/home-automation-web
+    DOCKER_CONTEXT: web
+    OS_ARCH: linux-amd64
+
+build-snips-action-handlers-amd64:
+  <<: *build-job-amd64
+  variables:
+    IMAGE: davesilva/home-automation-snips-action-handlers
+    DOCKER_CONTEXT: snips-action-handlers
+    OS_ARCH: linux-amd64
+
+build-mosquitto-amd64:
+  <<: *build-job-amd64
+  variables:
+    IMAGE: davesilva/home-automation-mosquitto
+    DOCKER_CONTEXT: mosquitto
+    OS_ARCH: linux-amd64
