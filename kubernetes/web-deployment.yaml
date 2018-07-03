@@ -28,5 +28,23 @@ spec:
     protocol: TCP
     port: 80
     targetPort: 80
-  externalIPs:
-  - 192.168.1.8
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  namespace: home-automation
+spec:
+  rules:
+  - host: volume.home.dmsilva.com
+    http:
+      paths:
+      - backend:
+          serviceName: web
+          servicePort: 80
+  - host: volume.xxx
+    http:
+      paths:
+      - backend:
+          serviceName: web
+          servicePort: 80
