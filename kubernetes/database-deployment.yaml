@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: database
+  namespace: home-automation
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      nodeSelector:
+        database-data: 'true'
+      containers:
+      - name: database
+        image: davesilva/home-automation-database:1.0.1
+        imagePullPolicy: Always
+        env:
+        - name: BROKER_HOST
+          value: mosquitto
+        volumeMounts:
+        - name: data
+          mountPath: /usr/app/db
+      volumes:
+      - name: data
+        hostPath:
+          path: /var/lib/database
+          type: DirectoryOrCreate

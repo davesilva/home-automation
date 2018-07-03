@@ -1,0 +1,8 @@
+version: '3.6'
+services:
+  database:
+    image: davesilva/home-automation-database:1.0.1
+    build:
+      context: .
+    environment:
+      - BROKER_HOST=192.168.1.8
