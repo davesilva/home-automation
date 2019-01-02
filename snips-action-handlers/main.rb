@@ -25,6 +25,16 @@ def exact_amount(qualitative_amount)
   end
 end
 
+def input_number(input_name)
+  case input_name
+  when 'Steam Link' then 1
+  when 'XBox One' then 2
+  when 'Switch' then 3
+  when 'PS4' then 7
+  when 'Chromecast' then 8
+  end
+end
+
 puts "host=#{BROKER_HOST} status=connecting"
 MQTT::Client.connect(BROKER_HOST) do |client|
   puts "host=#{BROKER_HOST} status=connected"
@@ -63,10 +73,13 @@ MQTT::Client.connect(BROKER_HOST) do |client|
     when 'davesilva:switchVideoInput'
       body = JSON.parse(message)
       slots = extract_slots(body)
-      input = slots['inputNumber'].to_i
+      input = slots['inputNumber']&.to_i || input_number(slots['inputName'])
 
-      client.publish('home/hdmiSwitch/setInput', input)
-      end_session(client, body['sessionId'])
+      if input && input >= 1 && input <= 8
+        client.publish('home/projector/setPower', true)
+        client.publish('home/hdmiSwitch/setInput', input)
+        end_session(client, body['sessionId'])
+      end
     end
   end
 end
