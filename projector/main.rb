@@ -69,7 +69,7 @@ Thread.new do
 
       old_power = power
       old_input = input
-    rescue Net::OpenTimeout
+    rescue Net::OpenTimeout, Net::ReadTimeout
       client.publish('home/projector/available', 'false', retain: true)
     end
 

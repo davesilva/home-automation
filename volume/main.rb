@@ -39,7 +39,7 @@ Thread.new do
 
       old_power = power
       old_volume = volume
-    rescue Net::OpenTimeout
+    rescue Net::OpenTimeout, Net::ReadTimeout
       client.publish('home/speakers/available', 'false', retain: true)
     end
 
