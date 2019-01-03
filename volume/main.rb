@@ -8,11 +8,11 @@ BROKER_HOST = ENV['BROKER_HOST']
 VOLUME_HOST = ENV['VOLUME_HOST']
 
 def get_speaker_data
-  HTTParty.get("http://#{VOLUME_HOST}/speakers")
+  HTTParty.get("http://#{VOLUME_HOST}/speakers", timeout: 5)
 end
 
 def update_speakers(body)
-  HTTParty.post("http://#{VOLUME_HOST}/speakers", body: body)
+  HTTParty.post("http://#{VOLUME_HOST}/speakers", body: body, timeout: 5)
 end
 
 puts "host=#{BROKER_HOST} status=connecting"
@@ -39,7 +39,7 @@ Thread.new do
 
       old_power = power
       old_volume = volume
-    rescue Net::OpenTimeout, Net::ReadTimeout
+    rescue Net::OpenTimeout, Net::ReadTimeout, Errno::EHOSTUNREACH
       client.publish('home/speakers/available', 'false', retain: true)
     end
 

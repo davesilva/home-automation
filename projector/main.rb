@@ -20,7 +20,8 @@ end
 def projector_post(auth_token, data)
   HTTParty.post("http://#{PROJECTOR_HOST}/tgi/control.tgi",
                 body: data,
-                headers: { 'Cookie' => auth_token })
+                headers: { 'Cookie' => auth_token },
+                timeout: 5)
 end
 
 def projector_query(auth_token)
@@ -33,7 +34,8 @@ def projector_login
   while cookies.nil?
     puts "host=#{PROJECTOR_HOST} status=logging_in"
     response = HTTParty.post("http://#{PROJECTOR_HOST}/tgi/login.tgi",
-                             body: { "Username" => 1 })
+                             body: { "Username" => 1 },
+                             timeout: 5)
     cookies = response.headers['Set-Cookie']&.split(';')
   end
 
@@ -69,7 +71,7 @@ Thread.new do
 
       old_power = power
       old_input = input
-    rescue Net::OpenTimeout, Net::ReadTimeout
+    rescue Net::OpenTimeout, Net::ReadTimeout, Errno::EHOSTUNREACH
       client.publish('home/projector/available', 'false', retain: true)
     end
 
