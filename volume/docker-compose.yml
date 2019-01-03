@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   mqtt_bridge:
-    image: davesilva/home-automation-volume:1.0.1
+    image: davesilva/home-automation-volume:1.1.0
     build:
       context: .
     environment:

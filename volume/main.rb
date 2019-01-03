@@ -16,14 +16,20 @@ def update_speakers(body)
 end
 
 puts "host=#{BROKER_HOST} status=connecting"
-MQTT::Client.connect(BROKER_HOST) do |client|
-  puts "host=#{BROKER_HOST} status=connected"
+client = MQTT::Client.new(host: BROKER_HOST,
+                          will_topic: 'home/speakers/available',
+                          will_payload: 'false',
+                          will_retain: true)
+client.connect
+puts "host=#{BROKER_HOST} status=connected"
 
-  Thread.new do
-    old_power, old_volume = nil
+Thread.new do
+  old_power, old_volume = nil
 
-    loop do
+  loop do
+    begin
       response = get_speaker_data
+      client.publish('home/speakers/available', 'true', retain: true)
 
       power = response['power']
       volume = response['volume']
@@ -33,21 +39,23 @@ MQTT::Client.connect(BROKER_HOST) do |client|
 
       old_power = power
       old_volume = volume
-
-      sleep 2
+    rescue Net::OpenTimeout
+      client.publish('home/speakers/available', 'false', retain: true)
     end
+
+    sleep 2
   end
+end
 
-  client.get('home/speakers/+') do |topic, message|
-    case topic.split('/').last
-    when 'setPower'
-      power = message == 'true'
-      puts "topic=#{topic} power=#{power}"
-      update_speakers(power: power)
-    when 'setVolume'
-      volume = message.to_i
-      puts "topic=#{topic} volume=#{volume}"
-      update_speakers(power: true, volume: volume)
-    end
+client.get('home/speakers/+') do |topic, message|
+  case topic.split('/').last
+  when 'setPower'
+    power = message == 'true'
+    puts "topic=#{topic} power=#{power}"
+    update_speakers(power: power)
+  when 'setVolume'
+    volume = message.to_i
+    puts "topic=#{topic} volume=#{volume}"
+    update_speakers(power: true, volume: volume)
   end
 end

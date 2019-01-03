@@ -40,7 +40,12 @@ defmodule HdmiSwitch.Main do
         state.mqtt_client,
         client_id: "hdmi-switch",
         host: "192.168.1.8",
-        port: 1883
+        port: 1883,
+        will_topic: "home/hdmiSwitch/available",
+        will_message: "false",
+        will_qos: 0,
+        will_retain: 1,
+        keep_alive: 15
       )
 
     :ok =
@@ -89,6 +94,7 @@ defmodule HdmiSwitch.Main do
 
   def handle_info(:poll_switch, state) do
     :ok = Nerves.UART.write(state.uart, "read")
+
     poll_switch()
 
     {:noreply, state}
@@ -100,6 +106,16 @@ defmodule HdmiSwitch.Main do
         publish_input(input, state)
 
       "Input: port" <> <<input::bytes-size(1)>> ->
+        :ok =
+          MqttClient.publish(
+            state.mqtt_client,
+            topic: "home/hdmiSwitch/available",
+            dup: 0,
+            message: "true",
+            qos: 0,
+            retain: 1
+          )
+
         publish_input(input, state)
 
       message ->

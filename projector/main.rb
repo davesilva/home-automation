@@ -42,18 +42,24 @@ def projector_login
 end
 
 puts "host=#{BROKER_HOST} status=connecting"
-MQTT::Client.connect(BROKER_HOST) do |client|
-  puts "host=#{BROKER_HOST} status=connected"
+client = MQTT::Client.new(host: BROKER_HOST,
+                          will_topic: 'home/projector/available',
+                          will_payload: 'false',
+                          will_retain: true)
+client.connect
+puts "host=#{BROKER_HOST} status=connected"
 
-  puts "host=#{PROJECTOR_HOST} status=connecting"
-  auth_token = projector_login
-  puts "host=#{PROJECTOR_HOST} status=connected"
+puts "host=#{PROJECTOR_HOST} status=connecting"
+auth_token = projector_login
+puts "host=#{PROJECTOR_HOST} status=connected"
 
-  Thread.new do
-    old_power, old_input = nil
+Thread.new do
+  old_power, old_input = nil
 
-    loop do
+  loop do
+    begin
       response = projector_query(auth_token)
+      client.publish('home/projector/available', 'true', retain: true)
 
       power = response[:pwr] == '1'
       input = SOURCE_MAPPING[response[:src].to_i]
@@ -63,25 +69,27 @@ MQTT::Client.connect(BROKER_HOST) do |client|
 
       old_power = power
       old_input = input
-
-      sleep 2
+    rescue Net::OpenTimeout
+      client.publish('home/projector/available', 'false', retain: true)
     end
-  end
 
-  client.get('home/projector/+') do |topic, message|
-    case topic.split('/').last
-    when 'setInput'
-      puts "topic=#{topic} input=#{message}"
-      projector_post(auth_token, src: message)
-    when 'setPower'
-      puts "topic=#{topic} power=#{message}"
-      if message == 'true'
-        projector_post(auth_token, pwr: 'Power ON')
-      else
-        projector_post(auth_token, pwr: 'Power OFF')
-        sleep 1
-        projector_post(auth_token, pwr: 'Power OFF')
-      end
+    sleep 2
+  end
+end
+
+client.get('home/projector/+') do |topic, message|
+  case topic.split('/').last
+  when 'setInput'
+    puts "topic=#{topic} input=#{message}"
+    projector_post(auth_token, src: message)
+  when 'setPower'
+    puts "topic=#{topic} power=#{message}"
+    if message == 'true'
+      projector_post(auth_token, pwr: 'Power ON')
+    else
+      projector_post(auth_token, pwr: 'Power OFF')
+      sleep 1
+      projector_post(auth_token, pwr: 'Power OFF')
     end
   end
 end
