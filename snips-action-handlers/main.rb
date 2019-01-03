@@ -5,6 +5,7 @@ $stdout.sync = true
 Thread.abort_on_exception = true
 
 BROKER_HOST = ENV['BROKER_HOST']
+PROBABILITY_THRESHOLD = 0.6
 
 volume = 0
 
@@ -42,43 +43,40 @@ MQTT::Client.connect(BROKER_HOST) do |client|
   client.subscribe('home/speakers/volume', 'hermes/intent/#')
 
   client.get do |topic, message|
-    case topic.split('/').last
-    when 'volume'
-      volume = message.to_i
-      puts "Volume: #{volume}"
-    when 'davesilva:volumeUp'
-      body = JSON.parse(message)
-      slots = extract_slots(body)
-      amount = exact_amount(slots['amount'])
+    body = JSON.parse(message) rescue nil
 
-      client.publish('home/speakers/setVolume', volume + amount)
-      end_session(client, body['sessionId'])
-    when 'davesilva:volumeDown'
-      body = JSON.parse(message)
-      slots = extract_slots(body)
-      amount = exact_amount(slots['amount'])
+    if !body.is_a?(Hash) || body['intent']['probability'] > PROBABILITY_THRESHOLD
+      case topic.split('/').last
+      when 'volume'
+        volume = body
+        puts "Volume: #{volume}"
+      when 'davesilva:volumeUp'
+        slots = extract_slots(body)
+        amount = exact_amount(slots['amount'])
 
-      client.publish('home/speakers/setVolume', volume - amount)
-      end_session(client, body['sessionId'])
-    when 'davesilva:screenOn'
-      body = JSON.parse(message)
-
-      client.publish('home/projector/setPower', true)
-      end_session(client, body['sessionId'])
-    when 'davesilva:screenOff'
-      body = JSON.parse(message)
-
-      client.publish('home/projector/setPower', false)
-      end_session(client, body['sessionId'])
-    when 'davesilva:switchVideoInput'
-      body = JSON.parse(message)
-      slots = extract_slots(body)
-      input = slots['inputNumber']&.to_i || input_number(slots['inputName'])
-
-      if input && input >= 1 && input <= 8
-        client.publish('home/projector/setPower', true)
-        client.publish('home/hdmiSwitch/setInput', input)
+        client.publish('home/speakers/setVolume', volume + amount)
         end_session(client, body['sessionId'])
+      when 'davesilva:volumeDown'
+        slots = extract_slots(body)
+        amount = exact_amount(slots['amount'])
+
+        client.publish('home/speakers/setVolume', volume - amount)
+        end_session(client, body['sessionId'])
+      when 'davesilva:screenOn'
+        client.publish('home/projector/setPower', true)
+        end_session(client, body['sessionId'])
+      when 'davesilva:screenOff'
+        client.publish('home/projector/setPower', false)
+        end_session(client, body['sessionId'])
+      when 'davesilva:switchVideoInput'
+        slots = extract_slots(body)
+        input = slots['inputNumber']&.to_i || input_number(slots['inputName'])
+
+        if input && input >= 1 && input <= 8
+          client.publish('home/projector/setPower', true)
+          client.publish('home/hdmiSwitch/setInput', input)
+          end_session(client, body['sessionId'])
+        end
       end
     end
   end
