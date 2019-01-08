@@ -15,6 +15,16 @@ $(document).ready(() => {
   const $projectorLabel = $("#projector_label");
   const $hdmiInput = $("input[name=hdmi_input]");
   const $inputLabel = $("#input_label");
+  const $tvPower = $("button[name=power]");
+  const $tvVolumeDown = $("button[name=volume_down]");
+  const $tvVolumeUp = $("button[name=volume_up]");
+  const $tvChannelDown = $("button[name=channel_down]");
+  const $tvChannelUp = $("button[name=channel_up]");
+  const $tvInput0 = $("button[name=input_0]");
+  const $tvInput1 = $("button[name=input_1]");
+  const $tvInput2 = $("button[name=input_2]");
+  const $tvInput3 = $("button[name=input_3]");
+  const $tvLabel = $("#tv_label");
 
   $speakerVolume.TouchSpin({
     min: 0,
@@ -71,6 +81,16 @@ $(document).ready(() => {
         $inputLabel.text('Input');
         $inputLabel.css('color', '#333');
       }
+      break;
+    case 'home/tv/available':
+      if (String(message) === 'false') {
+        $tvLabel.text('TV (Error)');
+        $tvLabel.css('color', '#c33');
+      } else {
+        $tvLabel.text('TV');
+        $tvLabel.css('color', '#333');
+      }
+      break;
     }
   });
 
@@ -97,5 +117,42 @@ $(document).ready(() => {
 
   $hdmiInput.change(() => {
     client.publish('home/hdmiSwitch/setInput', $hdmiInput.filter(':checked').val());
+  });
+
+  $tvPower.on('click', e => {
+    client.publish('home/tv/setPower', 'true');
+    return false;
+  });
+  $tvVolumeDown.click(() => {
+    client.publish('home/tv/setVolume', 'down');
+    return false;
+  });
+  $tvVolumeUp.click(() => {
+    client.publish('home/tv/setVolume', 'up');
+    return false;
+  });
+  $tvChannelDown.click(() => {
+    client.publish('home/tv/setChannel', 'down');
+    return false;
+  });
+  $tvChannelUp.click(() => {
+    client.publish('home/tv/setChannel', 'up');
+    return false;
+  });
+  $tvInput0.click(() => {
+    client.publish('home/tv/setInput', '0');
+    return false;
+  });
+  $tvInput1.click(() => {
+    client.publish('home/tv/setInput', '1');
+    return false;
+  });
+  $tvInput2.click(() => {
+    client.publish('home/tv/setInput', '2');
+    return false;
+  });
+  $tvInput3.click(() => {
+    client.publish('home/tv/setInput', '3');
+    return false;
   });
 });
