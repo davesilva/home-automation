@@ -54,29 +54,59 @@ MQTT::Client.connect(BROKER_HOST) do |client|
         slots = extract_slots(body)
         amount = exact_amount(slots['amount'])
 
-        client.publish('home/speakers/setVolume', volume + amount)
+        if body['siteId'] == 'projector-room'
+          client.publish('home/speakers/setVolume', volume + amount)
+        elsif body['siteId'] == 'tv-room'
+          amount.times { client.publish('home/tv/setVolume', 'up') }
+        end
+
         end_session(client, body['sessionId'])
       when 'davesilva:volumeDown'
         slots = extract_slots(body)
         amount = exact_amount(slots['amount'])
 
-        client.publish('home/speakers/setVolume', volume - amount)
+        if body['siteId'] == 'projector-room'
+          client.publish('home/speakers/setVolume', volume - amount)
+        elsif body['siteId'] == 'tv-room'
+          amount.times { client.publish('home/tv/setVolume', 'down') }
+        end
+
         end_session(client, body['sessionId'])
       when 'davesilva:screenOn'
-        client.publish('home/projector/setPower', true)
+        if body['siteId'] == 'projector-room'
+          client.publish('home/projector/setPower', true)
+        elsif body['siteId'] == 'tv-room'
+          client.publish('home/tv/setPower', true)
+        end
+
         end_session(client, body['sessionId'])
       when 'davesilva:screenOff'
-        client.publish('home/projector/setPower', false)
+        if body['siteId'] == 'projector-room'
+          client.publish('home/projector/setPower', false)
+        elsif body['siteId'] == 'tv-room'
+          client.publish('home/tv/setPower', false)
+        end
+
         end_session(client, body['sessionId'])
       when 'davesilva:switchVideoInput'
         slots = extract_slots(body)
-        input = slots['inputNumber']&.to_i || input_number(slots['inputName'])
 
-        if input && input >= 1 && input <= 8
-          client.publish('home/projector/setPower', true)
-          client.publish('home/hdmiSwitch/setInput', input)
-          end_session(client, body['sessionId'])
+        if body['siteId'] == 'projector-room'
+          input = slots['inputNumber']&.to_i || input_number(slots['inputName'])
+
+          if input && input >= 1 && input <= 8
+            client.publish('home/projector/setPower', true)
+            client.publish('home/hdmiSwitch/setInput', input)
+          end
+        elsif body['siteId'] == 'tv-room'
+          input = slots['inputNumber']&.to_i
+
+          if input && input >= 0 && input <= 4
+            client.publish('home/tv/setInput', input)
+          end
         end
+
+        end_session(client, body['sessionId'])
       end
     end
   end
