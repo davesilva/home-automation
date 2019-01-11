@@ -73,17 +73,25 @@ MQTT::Client.connect(BROKER_HOST) do |client|
 
         end_session(client, body['sessionId'])
       when 'davesilva:screenOn'
-        if body['siteId'] == 'projector-room'
+        slots = extract_slots(body)
+
+        if slots['device'] == 'projector' ||
+           (slots['device'].nil? && body['siteId'] == 'projector-room')
           client.publish('home/projector/setPower', true)
-        elsif body['siteId'] == 'tv-room'
+        elsif slots['device'] == 'TV' ||
+              (slots['device'].nil? && body['siteId'] == 'tv-room')
           client.publish('home/tv/setPower', true)
         end
 
         end_session(client, body['sessionId'])
       when 'davesilva:screenOff'
-        if body['siteId'] == 'projector-room'
+        slots = extract_slots(body)
+
+        if slots['device'] == 'projector' ||
+           (slots['device'].nil? && body['siteId'] == 'projector-room')
           client.publish('home/projector/setPower', false)
-        elsif body['siteId'] == 'tv-room'
+        elsif slots['device'] == 'TV' ||
+              (slots['device'].nil? && body['siteId'] == 'tv-room')
           client.publish('home/tv/setPower', false)
         end
 
