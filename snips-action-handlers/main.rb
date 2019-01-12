@@ -6,6 +6,8 @@ Thread.abort_on_exception = true
 
 BROKER_HOST = ENV['BROKER_HOST']
 PROBABILITY_THRESHOLD = 0.6
+CONFIRM_SOUND_EFFECT = File.open('confirm.wav').read
+ERROR_SOUND_EFFECT = File.open('error.wav').read
 
 volume = 0
 
@@ -40,16 +42,24 @@ puts "host=#{BROKER_HOST} status=connecting"
 MQTT::Client.connect(BROKER_HOST) do |client|
   puts "host=#{BROKER_HOST} status=connected"
 
-  client.subscribe('home/speakers/volume', 'hermes/intent/#')
+  client.subscribe('home/speakers/volume',
+                   'hermes/intent/#',
+                   'hermes/dialogueManager/sessionEnded')
 
   client.get do |topic, message|
     body = JSON.parse(message) rescue nil
+    topic_second = topic.split('/')[1]
+    topic_last = topic.split('/').last
 
-    if !body.is_a?(Hash) || body['intent']['probability'] > PROBABILITY_THRESHOLD
-      case topic.split('/').last
-      when 'volume'
-        volume = body
-        puts "Volume: #{volume}"
+    if topic_last == 'volume'
+      volume = body
+      puts "Volume: #{volume}"
+    elsif topic_second == 'intent' &&
+          body['intent']['probability'] > PROBABILITY_THRESHOLD
+      sound_topic = "hermes/audioServer/#{body['siteId']}/playBytes/#{body['sessionId']}"
+      client.publish(sound_topic, CONFIRM_SOUND_EFFECT)
+
+      case topic_last
       when 'davesilva:volumeUp'
         slots = extract_slots(body)
         amount = exact_amount(slots['amount'])
@@ -116,6 +126,11 @@ MQTT::Client.connect(BROKER_HOST) do |client|
 
         end_session(client, body['sessionId'])
       end
+    elsif topic_second == 'intent' ||
+          (topic_second == 'dialogueManager' &&
+           body['termination']['reason'] == 'error')
+      sound_topic = "hermes/audioServer/#{body['siteId']}/playBytes/#{body['sessionId']}"
+      client.publish(sound_topic, ERROR_SOUND_EFFECT)
     end
   end
 end

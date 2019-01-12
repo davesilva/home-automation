@@ -13,6 +13,6 @@ COPY --chown=app_user Gemfile.lock .
 
 RUN bundle install
 
-COPY --chown=app_user main.rb .
+COPY --chown=app_user . .
 
 CMD [ "ruby", "main.rb" ]
