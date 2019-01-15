@@ -55,8 +55,12 @@ puts "host=#{PROJECTOR_HOST} status=connecting"
 auth_token = projector_login
 puts "host=#{PROJECTOR_HOST} status=connected"
 
+brightness_queue = Queue.new
+
 Thread.new do
-  old_power, old_input = nil
+  old_power, old_input, old_brightness = nil
+  desired_brightness = nil
+  sleep_time = 2
 
   loop do
     begin
@@ -65,17 +69,40 @@ Thread.new do
 
       power = response[:pwr] == '1'
       input = SOURCE_MAPPING[response[:src].to_i]
+      brightness = response[:bri].to_i
+      desired_brightness = brightness_queue.pop(true) rescue desired_brightness
 
-      client.publish('home/projector/power', power, retain: true) if power != old_power
-      client.publish('home/projector/input', input, retain: true) if input != old_input
+      if power != old_power
+        client.publish('home/projector/power', power, retain: true)
+      end
+
+      if input != old_input
+        client.publish('home/projector/input', input, retain: true)
+      end
+
+      if brightness != old_brightness
+        client.publish('home/projector/brightness', brightness, retain: true)
+      end
+
+      if power && desired_brightness && desired_brightness != brightness
+        if desired_brightness < brightness
+          projector_post(auth_token, brid: '')
+        else
+          projector_post(auth_token, bria: '')
+        end
+        sleep_time = 0.1
+      else
+        sleep_time = 2
+      end
 
       old_power = power
       old_input = input
+      old_brightness = brightness
     rescue Net::OpenTimeout, Net::ReadTimeout, Errno::EHOSTUNREACH
       client.publish('home/projector/available', 'false', retain: true)
     end
 
-    sleep 2
+    sleep sleep_time
   end
 end
 
@@ -93,5 +120,7 @@ client.get('home/projector/+') do |topic, message|
       sleep 1
       projector_post(auth_token, pwr: 'Power OFF')
     end
+  when 'setBrightness'
+    brightness_queue.push(message.to_i)
   end
 end
