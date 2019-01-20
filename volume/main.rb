@@ -26,7 +26,7 @@ puts "host=#{BROKER_HOST} status=connected"
 Thread.new do
   old_power, old_volume = nil
 
-  loop do
+  Kernel.loop do
     begin
       response = get_speaker_data
       client.publish('home/speakers/available', 'true', retain: true)
@@ -34,8 +34,8 @@ Thread.new do
       power = response['power']
       volume = response['volume']
 
-      client.publish('home/speakers/power', power, retain: true) if power != old_power
-      client.publish('home/speakers/volume', volume, retain: true) if volume != old_volume
+      client.publish('home/speakers/power', power.to_s, retain: true) if power != old_power
+      client.publish('home/speakers/volume', volume.to_s, retain: true) if volume != old_volume
 
       old_power = power
       old_volume = volume
@@ -43,7 +43,7 @@ Thread.new do
       client.publish('home/speakers/available', 'false', retain: true)
     end
 
-    sleep 2
+    Kernel.sleep 2
   end
 end
 
