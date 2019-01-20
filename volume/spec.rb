@@ -10,6 +10,8 @@ describe 'main.rb' do
   end
 
   before(:each) do
+    allow_any_instance_of(Logger).to receive(:level=)
+    allow_any_instance_of(Logger).to receive(:info)
     allow(Thread).to receive(:new)
     allow(MQTT::Client).to receive(:new).and_return(client)
     allow(HTTParty).to receive(:get)
