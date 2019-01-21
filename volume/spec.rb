@@ -21,6 +21,7 @@ describe 'main.rb' do
   end
 
   after(:each) do
+    load 'main.rb'
     Object.send(:remove_const, :BROKER_HOST)
     Object.send(:remove_const, :VOLUME_HOST)
   end
@@ -33,7 +34,6 @@ describe 'main.rb' do
     expect(MQTT::Client).to receive(:new).with(mqtt_args).and_return(client)
     expect(client).to receive(:connect)
     expect(client).to receive(:get).with('home/speakers/+')
-    load 'main.rb'
   end
 
   context 'when the topic ends in setPower' do
@@ -42,7 +42,6 @@ describe 'main.rb' do
       expect(HTTParty).to receive(:post).with('http://volume-host/speakers',
                                               body: { power: true },
                                               timeout: 5)
-      load 'main.rb'
     end
 
     it 'makes a POST request to the speakers when the message is "false"' do
@@ -50,7 +49,6 @@ describe 'main.rb' do
       expect(HTTParty).to receive(:post).with('http://volume-host/speakers',
                                               body: { power: false },
                                               timeout: 5)
-      load 'main.rb'
     end
   end
 
@@ -60,7 +58,6 @@ describe 'main.rb' do
       expect(HTTParty).to receive(:post).with('http://volume-host/speakers',
                                               body: { power: true, volume: 45 },
                                               timeout: 5)
-      load 'main.rb'
     end
   end
 
@@ -83,7 +80,6 @@ describe 'main.rb' do
                                                     retain: true)
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield.and_yield
-      load 'main.rb'
     end
 
     it 'publishes "false" for the speaker availability if the read times out' do
@@ -93,7 +89,6 @@ describe 'main.rb' do
                                                retain: true)
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield
-      load 'main.rb'
     end
   end
 end

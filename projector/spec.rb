@@ -28,6 +28,7 @@ describe 'main.rb' do
   end
 
   after(:each) do
+    load 'main.rb'
     Object.send(:remove_const, :BROKER_HOST)
     Object.send(:remove_const, :PROJECTOR_HOST)
     Object.send(:remove_const, :SOURCE_MAPPING)
@@ -41,7 +42,6 @@ describe 'main.rb' do
     expect(MQTT::Client).to receive(:new).with(mqtt_args).and_return(client)
     expect(client).to receive(:connect)
     expect(client).to receive(:get).with('home/projector/+')
-    load 'main.rb'
   end
 
   it 'continues trying to log in to PROJECTOR_HOST until it receives a cookie' do
@@ -51,7 +51,6 @@ describe 'main.rb' do
                                       .and_return(response)
     expect(response).to receive(:headers).and_return({},
                                                      { 'Set-Cookie' => 'ATOP=asdf' })
-    load 'main.rb'
   end
 
   context 'when the topic ends in setInput' do
@@ -61,7 +60,6 @@ describe 'main.rb' do
                        timeout: 5 }
       expect(HTTParty).to receive(:post).with(control_url, control_opts)
       expect(client).to receive(:get).and_yield('home/projector/setInput', '1')
-      load 'main.rb'
     end
   end
 
@@ -72,7 +70,6 @@ describe 'main.rb' do
                        timeout: 5 }
       expect(HTTParty).to receive(:post).with(control_url, control_opts)
       expect(client).to receive(:get).and_yield('home/projector/setPower', 'true')
-      load 'main.rb'
     end
 
     it 'POSTs "Power OFF" twice with a sleep in between if the message is "false"' do
@@ -82,7 +79,6 @@ describe 'main.rb' do
       expect(HTTParty).to receive(:post).with(control_url, control_opts).twice
       expect(Kernel).to receive(:sleep).with(1)
       expect(client).to receive(:get).and_yield('home/projector/setPower', 'false')
-      load 'main.rb'
     end
   end
 
@@ -92,7 +88,6 @@ describe 'main.rb' do
       expect(Queue).to receive(:new).and_return(brightness_queue)
       expect(brightness_queue).to receive(:push).with(60)
       expect(client).to receive(:get).and_yield('home/projector/setBrightness', '60')
-      load 'main.rb'
     end
   end
 
@@ -124,7 +119,6 @@ describe 'main.rb' do
                                                     retain: true)
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield.and_yield
-      load 'main.rb'
     end
 
     it 'POSTs "bria" if power is on and desired_brightness > brightness' do
@@ -144,7 +138,6 @@ describe 'main.rb' do
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield
       expect(Kernel).to receive(:sleep).with(0.1)
-      load 'main.rb'
     end
 
     it 'POSTs "brid" if power is on and desired_brightness < brightness' do
@@ -164,7 +157,6 @@ describe 'main.rb' do
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield
       expect(Kernel).to receive(:sleep).with(0.1)
-      load 'main.rb'
     end
 
     it 'does not POST if desired_brightness == brightness' do
@@ -179,7 +171,6 @@ describe 'main.rb' do
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield
       expect(Kernel).to receive(:sleep).with(2)
-      load 'main.rb'
     end
 
     it 'does not POST if power is off' do
@@ -194,7 +185,6 @@ describe 'main.rb' do
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield
       expect(Kernel).to receive(:sleep).with(2)
-      load 'main.rb'
     end
 
     it 'publishes "false" for the projector availability if the read times out' do
@@ -205,7 +195,6 @@ describe 'main.rb' do
                                                retain: true)
       expect(Thread).to receive(:new).and_yield
       expect(Kernel).to receive(:loop).and_yield
-      load 'main.rb'
     end
   end
 end

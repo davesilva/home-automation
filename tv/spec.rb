@@ -17,6 +17,7 @@ describe 'main.rb' do
   end
 
   after(:each) do
+    load 'main.rb'
     Object.send(:remove_const, :BROKER_HOST)
   end
 
@@ -31,14 +32,12 @@ describe 'main.rb' do
     expect(client).to receive(:publish).with('home/tv/available',
                                              'true',
                                              retain: true)
-    load 'main.rb'
   end
 
   context 'when the topic ends in setPower' do
     it 'sends the KEY_POWER command' do
       expect(client).to receive(:get).and_yield('home/tv/setPower', 'true')
       expect(Kernel).to receive(:system).with('irsend SEND_ONCE CT-90325 KEY_POWER')
-      load 'main.rb'
     end
   end
 
@@ -48,7 +47,6 @@ describe 'main.rb' do
       expect(Kernel).to receive(:system)
                           .twice
                           .with('irsend SEND_ONCE CT-90325 KEY_VOLUMEUP')
-      load 'main.rb'
     end
 
     it 'sends KEY_VOLUMEUP followed by KEY_VOLUMEDOWN if the message is "down"' do
@@ -59,7 +57,6 @@ describe 'main.rb' do
       expect(Kernel).to receive(:system)
                           .with('irsend SEND_ONCE CT-90325 KEY_VOLUMEDOWN')
                           .ordered
-      load 'main.rb'
     end
 
     it 'does not send the initial KEY_VOLUMEUP if the command is repeated immediately' do
@@ -72,7 +69,6 @@ describe 'main.rb' do
                           .with('irsend SEND_ONCE CT-90325 KEY_VOLUMEDOWN')
                           .twice
                           .ordered
-      load 'main.rb'
     end
   end
 
@@ -81,14 +77,12 @@ describe 'main.rb' do
       expect(client).to receive(:get).and_yield('home/tv/setChannel', 'up')
       expect(Kernel).to receive(:system)
                           .with('irsend SEND_ONCE CT-90325 KEY_CHANNELUP')
-      load 'main.rb'
     end
 
     it 'sends KEY_CHANNELDOWN if the message is "down"' do
       expect(client).to receive(:get).and_yield('home/tv/setChannel', 'down')
       expect(Kernel).to receive(:system)
                           .with('irsend SEND_ONCE CT-90325 KEY_CHANNELDOWN')
-      load 'main.rb'
     end
   end
 
@@ -101,7 +95,6 @@ describe 'main.rb' do
         expect(Kernel).to receive(:sleep).with(0.5)
         expect(Kernel).to receive(:system)
                             .with("irsend SEND_ONCE CT-90325 KEY_#{input}")
-        load 'main.rb'
       end
     end
   end
