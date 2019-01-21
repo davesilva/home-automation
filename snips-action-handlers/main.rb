@@ -1,5 +1,4 @@
 require 'mqtt'
-require 'httparty'
 
 $stdout.sync = true
 Thread.abort_on_exception = true
@@ -8,6 +7,9 @@ BROKER_HOST = ENV['BROKER_HOST']
 PROBABILITY_THRESHOLD = 0.6
 CONFIRM_SOUND_EFFECT = File.open('confirm.wav').read
 ERROR_SOUND_EFFECT = File.open('error.wav').read
+
+$logger = Logger.new(STDOUT)
+$logger.level = Logger::INFO
 
 volume = 0
 
@@ -38,12 +40,12 @@ def input_number(input_name)
   end
 end
 
-puts "host=#{BROKER_HOST} status=connecting"
+$logger.info("host=#{BROKER_HOST} status=connecting")
 MQTT::Client.connect(BROKER_HOST) do |client|
-  puts "host=#{BROKER_HOST} status=connected"
+  $logger.info("host=#{BROKER_HOST} status=connected")
 
   client.subscribe('home/speakers/volume',
-                   'hermes/intent/#',
+                   'hermes/intent/+',
                    'hermes/dialogueManager/sessionEnded')
 
   client.get do |topic, message|
@@ -53,7 +55,7 @@ MQTT::Client.connect(BROKER_HOST) do |client|
 
     if topic_last == 'volume'
       volume = body
-      puts "Volume: #{volume}"
+      $logger.info("volume=#{volume}")
     elsif topic_second == 'intent' &&
           body['intent']['probability'] > PROBABILITY_THRESHOLD
       sound_topic = "hermes/audioServer/#{body['siteId']}/playBytes/#{body['sessionId']}"
@@ -65,7 +67,7 @@ MQTT::Client.connect(BROKER_HOST) do |client|
         amount = exact_amount(slots['amount'])
 
         if body['siteId'] == 'projector-room'
-          client.publish('home/speakers/setVolume', volume + amount)
+          client.publish('home/speakers/setVolume', (volume + amount).to_s)
         elsif body['siteId'] == 'tv-room'
           amount.times { client.publish('home/tv/setVolume', 'up') }
         end
@@ -76,7 +78,8 @@ MQTT::Client.connect(BROKER_HOST) do |client|
         amount = exact_amount(slots['amount'])
 
         if body['siteId'] == 'projector-room'
-          client.publish('home/speakers/setVolume', volume - amount)
+          new_volume = volume - amount < 0 ? 0 : volume - amount
+          client.publish('home/speakers/setVolume', new_volume.to_s)
         elsif body['siteId'] == 'tv-room'
           amount.times { client.publish('home/tv/setVolume', 'down') }
         end
@@ -87,10 +90,10 @@ MQTT::Client.connect(BROKER_HOST) do |client|
 
         if slots['device'] == 'projector' ||
            (slots['device'].nil? && body['siteId'] == 'projector-room')
-          client.publish('home/projector/setPower', true)
+          client.publish('home/projector/setPower', 'true')
         elsif slots['device'] == 'TV' ||
               (slots['device'].nil? && body['siteId'] == 'tv-room')
-          client.publish('home/tv/setPower', true)
+          client.publish('home/tv/setPower', 'true')
         end
 
         end_session(client, body['sessionId'])
@@ -99,10 +102,10 @@ MQTT::Client.connect(BROKER_HOST) do |client|
 
         if slots['device'] == 'projector' ||
            (slots['device'].nil? && body['siteId'] == 'projector-room')
-          client.publish('home/projector/setPower', false)
+          client.publish('home/projector/setPower', 'false')
         elsif slots['device'] == 'TV' ||
               (slots['device'].nil? && body['siteId'] == 'tv-room')
-          client.publish('home/tv/setPower', false)
+          client.publish('home/tv/setPower', 'false')
         end
 
         end_session(client, body['sessionId'])
@@ -113,14 +116,14 @@ MQTT::Client.connect(BROKER_HOST) do |client|
           input = slots['inputNumber']&.to_i || input_number(slots['inputName'])
 
           if input && input >= 1 && input <= 8
-            client.publish('home/projector/setPower', true)
-            client.publish('home/hdmiSwitch/setInput', input)
+            client.publish('home/projector/setPower', 'true')
+            client.publish('home/hdmiSwitch/setInput', input.to_s)
           end
         elsif body['siteId'] == 'tv-room'
           input = slots['inputNumber']&.to_i
 
           if input && input >= 0 && input <= 4
-            client.publish('home/tv/setInput', input)
+            client.publish('home/tv/setInput', input.to_s)
           end
         end
 
