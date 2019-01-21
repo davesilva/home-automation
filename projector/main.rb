@@ -4,6 +4,9 @@ require 'httparty'
 $stdout.sync = true
 Thread.abort_on_exception = true
 
+$logger = Logger.new(STDOUT)
+$logger.level = Logger::INFO
+
 BROKER_HOST = ENV['BROKER_HOST']
 PROJECTOR_HOST = ENV['PROJECTOR_HOST']
 
@@ -32,28 +35,28 @@ def projector_login
   cookies = nil
 
   while cookies.nil?
-    puts "host=#{PROJECTOR_HOST} status=logging_in"
+    $logger.info("host=#{PROJECTOR_HOST} status=logging_in")
     response = HTTParty.post("http://#{PROJECTOR_HOST}/tgi/login.tgi",
                              body: { "Username" => 1 },
                              timeout: 5)
     cookies = response.headers['Set-Cookie']&.split(';')
   end
 
-  puts "host=#{PROJECTOR_HOST} status=logged_in"
+  $logger.info("host=#{PROJECTOR_HOST} status=logged_in")
   cookies.find { |cookie| cookie.start_with?('ATOP=') }
 end
 
-puts "host=#{BROKER_HOST} status=connecting"
+$logger.info("host=#{BROKER_HOST} status=connecting")
 client = MQTT::Client.new(host: BROKER_HOST,
                           will_topic: 'home/projector/available',
                           will_payload: 'false',
                           will_retain: true)
 client.connect
-puts "host=#{BROKER_HOST} status=connected"
+$logger.info("host=#{BROKER_HOST} status=connected")
 
-puts "host=#{PROJECTOR_HOST} status=connecting"
+$logger.info("host=#{PROJECTOR_HOST} status=connecting")
 auth_token = projector_login
-puts "host=#{PROJECTOR_HOST} status=connected"
+$logger.info("host=#{PROJECTOR_HOST} status=connected")
 
 brightness_queue = Queue.new
 
@@ -62,7 +65,7 @@ Thread.new do
   desired_brightness = nil
   sleep_time = 2
 
-  loop do
+  Kernel.loop do
     begin
       response = projector_query(auth_token)
       client.publish('home/projector/available', 'true', retain: true)
@@ -73,15 +76,15 @@ Thread.new do
       desired_brightness = brightness_queue.pop(true) rescue desired_brightness
 
       if power != old_power
-        client.publish('home/projector/power', power, retain: true)
+        client.publish('home/projector/power', power.to_s, retain: true)
       end
 
       if input != old_input
-        client.publish('home/projector/input', input, retain: true)
+        client.publish('home/projector/input', input.to_s, retain: true)
       end
 
       if brightness != old_brightness
-        client.publish('home/projector/brightness', brightness, retain: true)
+        client.publish('home/projector/brightness', brightness.to_s, retain: true)
       end
 
       if power && desired_brightness && desired_brightness != brightness
@@ -102,25 +105,26 @@ Thread.new do
       client.publish('home/projector/available', 'false', retain: true)
     end
 
-    sleep sleep_time
+    Kernel.sleep sleep_time
   end
 end
 
 client.get('home/projector/+') do |topic, message|
   case topic.split('/').last
   when 'setInput'
-    puts "topic=#{topic} input=#{message}"
+    $logger.info("topic=#{topic} input=#{message}")
     projector_post(auth_token, src: message)
   when 'setPower'
-    puts "topic=#{topic} power=#{message}"
+    $logger.info("topic=#{topic} power=#{message}")
     if message == 'true'
       projector_post(auth_token, pwr: 'Power ON')
     else
       projector_post(auth_token, pwr: 'Power OFF')
-      sleep 1
+      Kernel.sleep 1
       projector_post(auth_token, pwr: 'Power OFF')
     end
   when 'setBrightness'
+    $logger.info("topic=#{topic} brightness=#{message}")
     brightness_queue.push(message.to_i)
   end
 end
