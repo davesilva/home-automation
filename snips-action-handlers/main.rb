@@ -1,4 +1,5 @@
 require 'mqtt'
+require 'json'
 
 $stdout.sync = true
 Thread.abort_on_exception = true
