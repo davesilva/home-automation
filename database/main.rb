@@ -2,6 +2,7 @@ require 'bundler/setup'
 require 'mqtt'
 require 'active_record'
 require 'mini_record'
+require 'json'
 
 $stdout.sync = true
 Thread.abort_on_exception = true
@@ -39,7 +40,7 @@ class DetectedIntent < ActiveRecord::Base
                                    site_id: data['siteId'],
                                    input: data['input'],
                                    intent_name: data['intent']['intentName'],
-                                   intent_probability: data['intent']['probability'])
+                                   intent_probability: data['intent']['confidenceScore'])
     intent.detected_slots << data['slots'].map do |slot|
       DetectedSlot.create(name: slot['slotName'],
                           value: slot['value']['value'],

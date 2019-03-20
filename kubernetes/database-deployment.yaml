@@ -14,7 +14,7 @@ spec:
         database-data: 'true'
       containers:
       - name: database
-        image: davesilva/home-automation-database:1.0.1
+        image: davesilva/home-automation-database:2.0.0
         imagePullPolicy: Always
         env:
         - name: BROKER_HOST
