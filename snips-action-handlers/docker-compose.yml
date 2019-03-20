@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   mqtt_bridge:
-    image: davesilva/home-automation-snips-action-handlers:1.6.1
+    image: davesilva/home-automation-snips-action-handlers:2.0.0
     build:
       context: .
     environment:

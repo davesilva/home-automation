@@ -37,7 +37,7 @@ describe 'main.rb' do
     it 'plays a confirmation sound' do
       message = { siteId: 'projector-room',
                   sessionId: 'asdf',
-                  intent: { probability: 0.8 },
+                  intent: { confidenceScore: 0.8 },
                   slots: [] }.to_json
       sound = File.open('confirm.wav').read
       expect(client).to receive(:get).and_yield('hermes/intent/davesilva:someIntent',
@@ -52,7 +52,7 @@ describe 'main.rb' do
     it 'plays an error sound' do
       message = { siteId: 'projector-room',
                   sessionId: 'asdf',
-                  intent: { probability: 0.4 },
+                  intent: { confidenceScore: 0.4 },
                   slots: [] }.to_json
       sound = File.open('error.wav').read
       expect(client).to receive(:get).and_yield('hermes/intent/davesilva:someIntent',
@@ -82,7 +82,7 @@ describe 'main.rb' do
       it 'publishes on home/speakers/setVolume' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:volumeUp',
                                                   message)
@@ -94,7 +94,7 @@ describe 'main.rb' do
       it 'modifies the previous volume' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('home/speakers/volume', '50')
                                        .and_yield('hermes/intent/davesilva:volumeUp',
@@ -107,7 +107,7 @@ describe 'main.rb' do
       it 'raises the volume by 1 if amount is "a little"' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'amount',
                               value: { value: 'a little' } }] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:volumeUp',
@@ -120,7 +120,7 @@ describe 'main.rb' do
       it 'raises the volume by 4 if amount is "a lot"' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'amount',
                               value: { value: 'a lot' } }] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:volumeUp',
@@ -133,7 +133,7 @@ describe 'main.rb' do
       it 'raises the volume by 8 if amount is "a whole lot"' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'amount',
                               value: { value: 'a whole lot' } }] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:volumeUp',
@@ -148,7 +148,7 @@ describe 'main.rb' do
       it 'publishes on home/tv/setVolume' do
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:volumeUp',
                                                   message)
@@ -164,7 +164,7 @@ describe 'main.rb' do
       it 'does not go below 0' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:volumeDown',
                                                   message)
@@ -176,7 +176,7 @@ describe 'main.rb' do
       it 'modifies the previous volume' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('home/speakers/volume', '50')
                                        .and_yield('hermes/intent/davesilva:volumeDown',
@@ -191,7 +191,7 @@ describe 'main.rb' do
       it 'publishes on home/tv/setVolume' do
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:volumeDown',
                                                   message)
@@ -207,7 +207,7 @@ describe 'main.rb' do
       it 'publishes on home/projector/setPower' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOn',
                                                   message)
@@ -219,7 +219,7 @@ describe 'main.rb' do
       it 'publishes on home/tv/setPower if device == "TV"' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'device', value: { value: 'TV' } }] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOn',
                                                   message)
@@ -233,7 +233,7 @@ describe 'main.rb' do
       it 'publishes on home/tv/setPower' do
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOn',
                                                   message)
@@ -245,7 +245,7 @@ describe 'main.rb' do
       it 'publishes on home/projector/setPower if device == "projector"' do
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'device', value: { value: 'projector' } }] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOn',
                                                   message)
@@ -261,7 +261,7 @@ describe 'main.rb' do
       it 'publishes on home/projector/setPower' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOff',
                                                   message)
@@ -273,7 +273,7 @@ describe 'main.rb' do
       it 'publishes on home/tv/setPower if device == "TV"' do
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'device',
                               value: { value: 'TV' } }] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOff',
@@ -288,7 +288,7 @@ describe 'main.rb' do
       it 'publishes on home/tv/setPower' do
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOff',
                                                   message)
@@ -300,7 +300,7 @@ describe 'main.rb' do
       it 'publishes on home/projector/setPower if device == "projector"' do
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'device',
                               value: { value: 'projector' } }] }.to_json
         expect(client).to receive(:get).and_yield('hermes/intent/davesilva:screenOff',
@@ -318,7 +318,7 @@ describe 'main.rb' do
         topic = 'hermes/intent/davesilva:switchVideoInput'
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'inputNumber',
                               value: { value: '1' } }] }.to_json
         expect(client).to receive(:get).and_yield(topic, message)
@@ -332,7 +332,7 @@ describe 'main.rb' do
         topic = 'hermes/intent/davesilva:switchVideoInput'
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'inputName',
                               value: { value: 'Chromecast' } }] }.to_json
         expect(client).to receive(:get).and_yield(topic, message)
@@ -346,7 +346,7 @@ describe 'main.rb' do
         topic = 'hermes/intent/davesilva:switchVideoInput'
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield(topic, message)
         expect(client).to_not receive(:publish).with('home/projector/setPower', 'true')
@@ -360,7 +360,7 @@ describe 'main.rb' do
         topic = 'hermes/intent/davesilva:switchVideoInput'
         message = { siteId: 'projector-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'inputNumber',
                               value: { value: '100' } }] }.to_json
         expect(client).to receive(:get).and_yield(topic, message)
@@ -377,7 +377,7 @@ describe 'main.rb' do
         topic = 'hermes/intent/davesilva:switchVideoInput'
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'inputNumber',
                               value: { value: '0' } }] }.to_json
         expect(client).to receive(:get).and_yield(topic, message)
@@ -390,7 +390,7 @@ describe 'main.rb' do
         topic = 'hermes/intent/davesilva:switchVideoInput'
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [] }.to_json
         expect(client).to receive(:get).and_yield(topic, message)
         expect(client).to_not receive(:publish).with('home/tv/setInput', anything)
@@ -402,7 +402,7 @@ describe 'main.rb' do
         topic = 'hermes/intent/davesilva:switchVideoInput'
         message = { siteId: 'tv-room',
                     sessionId: 'asdf',
-                    intent: { probability: 0.8 },
+                    intent: { confidenceScore: 0.8 },
                     slots: [{ slotName: 'inputNumber',
                               value: { value: '5' } }] }.to_json
         expect(client).to receive(:get).and_yield(topic, message)

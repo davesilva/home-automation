@@ -57,7 +57,7 @@ MQTT::Client.connect(BROKER_HOST) do |client|
       volume = body
       $logger.info("volume=#{volume}")
     elsif topic_second == 'intent' &&
-          body['intent']['probability'] > PROBABILITY_THRESHOLD
+          body['intent']['confidenceScore'] > PROBABILITY_THRESHOLD
       sound_topic = "hermes/audioServer/#{body['siteId']}/playBytes/#{body['sessionId']}"
       client.publish(sound_topic, CONFIRM_SOUND_EFFECT)
 
