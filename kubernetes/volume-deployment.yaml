@@ -16,15 +16,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: VOLUME_HOST
-          value: volume-control
+          value: 192.168.1.10
         - name: BROKER_HOST
           value: mosquitto
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: volume-control
-  namespace: home-automation
-spec:
-  type: ExternalName
-  externalName: 192.168.1.10
+

@@ -16,15 +16,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: PROJECTOR_HOST
-          value: projector
+          value: 192.168.1.11
         - name: BROKER_HOST
           value: mosquitto
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: projector
-  namespace: home-automation
-spec:
-  type: ExternalName
-  externalName: 192.168.1.11
+

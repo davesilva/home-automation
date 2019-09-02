@@ -45,7 +45,7 @@ const app = new Vue({
     },
     setHdmiSwitchInput: input => {
       app.hdmiSwitch.input = input;
-      client.publish('home/hdmiSwitch/input', String(input));
+      client.publish('home/hdmiSwitch/setInput', String(input));
     },
     sendTV: (topic, message) => {
       client.publish(`home/tv/${topic}`, message);
