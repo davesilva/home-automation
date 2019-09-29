@@ -309,15 +309,16 @@ spec:
         name: projector-room
         image: davesilva/snips:0.63.3
         imagePullPolicy: Always
-        command: ['snips-watch']
+        command: ['/bin/sh']
         args:
-          - --verbose
-          - --no-color
-          - --dump_audio
-          - --dump_audio_site
-          - projector-room
-          - --dump_audio_path
-          - /usr/share/snips-dumps
+          - -c
+          - >-
+            snips-watch --verbose \
+                        --html \
+                        --dump_audio \
+                        --dump_audio_site projector-room \
+                        --dump_audio_path /usr/share/snips-dumps \
+                        | tee -a /usr/share/snips-dumps/logs.html
         volumeMounts:
         - name: usr-share-snips
           mountPath: /usr/share/snips
@@ -332,13 +333,13 @@ spec:
       - <<: *container-spec
         name: tv-room
         args:
-          - --verbose
-          - --no-color
-          - --dump_audio
-          - --dump_audio_site
-          - tv-room
-          - --dump_audio_path
-          - /usr/share/snips-dumps
+          - -c
+          - >-
+            snips-watch --verbose \
+                        --html \
+                        --dump_audio \
+                        --dump_audio_site tv-room \
+                        --dump_audio_path /usr/share/snips-dumps
       volumes:
       - name: usr-share-snips
         hostPath:
