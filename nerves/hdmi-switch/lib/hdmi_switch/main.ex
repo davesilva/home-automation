@@ -1,26 +1,27 @@
 defmodule HdmiSwitch.Main do
-  use GenServer, start: {__MODULE__, :start_link, []}, restart: :transient
+  use Connection
+  require Logger
 
   alias HdmiSwitch.MqttClient
 
   def start_link do
-    IO.puts("Main Starting...")
-    GenServer.start_link(__MODULE__, %{}, [])
+    Logger.info("Main Starting...")
+    Connection.start_link(__MODULE__, %{}, [])
   end
 
+  @impl true
   def init(%{}) do
-    IO.puts("Inside init")
+    Logger.info("Inside init")
     {:ok, mqtt_client} = MqttClient.start_link(%{parent: self()})
     {:ok, uart} = Nerves.UART.start_link()
 
-    Process.send_after(self(), :connect, 2000)
-    IO.puts("Finished init")
+    Logger.info("Finished init")
 
-    {:ok, %{mqtt_client: mqtt_client, uart: uart, input: 0}}
+    {:connect, :init, %{mqtt_client: mqtt_client, uart: uart, input: 0, read_state: :unacked}}
   end
 
   def on_connect(pid) do
-    IO.puts("On connect")
+    Logger.info("On connect")
     Kernel.send(pid, :connected)
   end
 
@@ -32,11 +33,11 @@ defmodule HdmiSwitch.Main do
     Kernel.send(pid, %{topic: topic, message: message})
   end
 
-  def handle_info(:connect, state) do
-    IO.puts("About to connect MQTT")
+  @impl true
+  def connect(_, state) do
+    Logger.info("About to connect MQTT and UART")
 
-    :ok =
-      MqttClient.connect(
+    with :ok <- MqttClient.connect(
         state.mqtt_client,
         client_id: "hdmi-switch",
         host: "192.168.1.8",
@@ -46,104 +47,123 @@ defmodule HdmiSwitch.Main do
         will_qos: 0,
         will_retain: 1,
         keep_alive: 15
-      )
-
-    :ok =
-      MqttClient.publish(
-        state.mqtt_client,
-        topic: "home/hdmiSwitch/debug/mqtt",
-        dup: 0,
-        message: "connected",
-        qos: 0,
-        retain: 0
-      )
-
-    IO.puts("About to connect UART")
-
-    :ok =
-      Nerves.UART.open(
+      ),
+      :ok <- Nerves.UART.open(
         state.uart,
         "ttyUSB0",
         speed: 19200,
         active: true,
         framing: {Nerves.UART.Framing.Line, separator: "\r\n"}
-      )
-
-    :ok =
-      MqttClient.publish(
-        state.mqtt_client,
-        topic: "home/hdmiSwitch/debug/uart",
-        dup: 0,
-        message: "connected",
-        qos: 0,
-        retain: 0
-      )
-
-    IO.puts("Connected")
-
-    {:noreply, state}
+      ),
+      :ok <- Nerves.UART.write(state.uart, "swmode default")
+    do
+      Logger.info("Connected")
+      {:ok, state}
+    else
+      _ -> {:backoff, 1000, state}
+    end
   end
 
+  @impl true
+  def disconnect(error, state) do
+    Logger.info("Disconnect")
+    Logger.error(error)
+    {:backoff, 1000, state}
+  end
+
+  @impl true
   def handle_info(:connected, state) do
-    MqttClient.subscribe(state.mqtt_client, topics: ["home/hdmiSwitch/setInput"], qoses: [1])
-    :ok = Nerves.UART.write(state.uart, "swmode default")
-
-    poll_switch()
-    {:noreply, state}
+    with :ok <- MqttClient.subscribe(state.mqtt_client, topics: ["home/hdmiSwitch/setInput"], qoses: [1])
+    do
+      poll_switch()
+      {:noreply, state}
+    else
+      {:error, error} -> {:disconnect, error, state}
+    end
   end
 
+  @impl true
+  def handle_info(:poll_switch, state = %{read_state: :sent}) do
+    publish_available("false", state)
+    handle_info(:poll_switch, %{state | read_state: :unacked})
+  end
+
+  @impl true
   def handle_info(:poll_switch, state) do
-    :ok = Nerves.UART.write(state.uart, "read")
-
-    poll_switch()
-
-    {:noreply, state}
+    case Nerves.UART.write(state.uart, "read") do
+      :ok ->
+        poll_switch()
+        {:noreply, %{state | read_state: :sent}}
+      {:error, error} ->
+        {:disconnect, error, state}
+    end
   end
 
+  @impl true
   def handle_info({:nerves_uart, _port, message}, state) do
     case message do
       "swi0" <> <<input::bytes-size(1)>> <> " Command OK" ->
         publish_input(input, state)
 
       "Input: port" <> <<input::bytes-size(1)>> ->
-        :ok =
-          MqttClient.publish(
-            state.mqtt_client,
-            topic: "home/hdmiSwitch/available",
-            dup: 0,
-            message: "true",
-            qos: 0,
-            retain: 1
-          )
+        publish_input(input, %{state | read_state: :acked})
 
-        publish_input(input, state)
-
-      message ->
+      _ ->
         {:noreply, state}
     end
   end
 
+  @impl true
   def handle_info(%{topic: "home/hdmiSwitch/setInput", message: message}, state) do
-    :ok = Nerves.UART.write(state.uart, "swi0#{message}")
+    case Nerves.UART.write(state.uart, "swi0#{message}") do
+      :ok -> {:noreply, state}
+      {:error, error} -> {:disconnect, error, state}
+    end
+  end
 
-    {:noreply, state}
+  def child_spec(_opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, []},
+      type: :worker,
+      restart: :permanent,
+      shutdown: 500
+    }
+  end
+
+  defp publish_available(message, state) do
+    case MqttClient.publish(
+        state.mqtt_client,
+        topic: "home/hdmiSwitch/available",
+        dup: 0,
+        message: message,
+        qos: 0,
+        retain: 1
+      )
+    do
+      :ok -> {:noreply, state}
+      {:error, error} -> {:disconnect, error, state}
+    end
   end
 
   defp publish_input(input, state = %{input: old_input}) when input != old_input do
-    :ok =
-      MqttClient.publish(
+    with :ok <- MqttClient.publish(
         state.mqtt_client,
         topic: "home/hdmiSwitch/input",
         dup: 0,
         message: input,
         qos: 1,
         retain: 1
-      )
-
-    {:noreply, %{state | input: input}}
+      ),
+      {:noreply, state} <- publish_available("true", state)
+    do
+      {:noreply, %{state | input: input}}
+    else
+      {:error, error} -> {:disconnect, error, state}
+    end
   end
 
   defp publish_input(_input, state) do
-    {:noreply, state}
+    publish_available("true", state)
   end
 end

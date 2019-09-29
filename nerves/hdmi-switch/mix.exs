@@ -40,7 +40,8 @@ defmodule HdmiSwitch.MixProject do
       {:nerves, "~> 1.0", runtime: false},
       {:shoehorn, "~> 0.2"},
       {:nerves_uart, "~> 1.2"},
-      {:hulaaki, "~> 0.1.2"}
+      {:hulaaki, "~> 0.1.2"},
+      {:connection, "~> 1.0.4"}
     ] ++ deps(@target)
   end
 
