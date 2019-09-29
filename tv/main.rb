@@ -2,6 +2,7 @@ require 'mqtt'
 
 BROKER_HOST = ENV['BROKER_HOST']
 
+$stdout.sync = true
 $logger = Logger.new(STDOUT)
 $logger.level = Logger::INFO
 
