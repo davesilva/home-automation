@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  snips-asr: &snips-common
+    image: davesilva/snips:0.63.3
+    command: snips-asr
+    build:
+      context: .
+    volumes:
+      - "./config/snips.toml:/etc/snips.toml"
+      - "./snips-data:/usr/share/snips"
+    extra_hosts:
+      - "mosquitto:192.168.1.8"
+    environment:
+      - TZ=America/New_York
+  snips-dialogue:
+    <<: *snips-common
+    command: snips-dialogue
+  snips-hotword:
+    <<: *snips-common
+    command: snips-hotword
+  snips-nlu:
+    <<: *snips-common
+    command: snips-nlu
+  snips-tts:
+    <<: *snips-common
+    command: snips-tts
+  snips-pegasus:
+    <<: *snips-common
+    command: snips-pegasus
+    ports:
+      - "8080:8080"

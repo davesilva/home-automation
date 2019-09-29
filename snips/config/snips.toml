@@ -1,0 +1,13 @@
+[snips-common]
+mqtt = "mosquitto:1883"
+
+[snips-hotword]
+sensitivity = "0.5"
+
+[snips-dialogue]
+sound_feedback_disabled_default = true
+
+[snips-pegasus]
+address = "0.0.0.0:8080"
+tls_certificate_chain = ""
+tls_private_key = ""
