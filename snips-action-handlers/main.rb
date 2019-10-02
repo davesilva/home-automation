@@ -51,13 +51,17 @@ end
 @volume = 0
 @availability = Hash.new(false)
 
+def register_sound(client, name, sound_file)
+  topic = "hermes/tts/registerSound/#{name}"
+  client.publish(topic, sound_file)
+end
+
 def end_session(client, body, text = nil, success = true)
   site_id = body['siteId']
   session_id = body['sessionId']
 
   if success
-    sound_topic = "hermes/audioServer/#{site_id}/playBytes/#{session_id}"
-    client.publish(sound_topic, CONFIRM_SOUND_EFFECT)
+    text = "[[sound:confirm]] #{text}"
   end
 
   client.publish('hermes/dialogueManager/endSession', { sessionId: session_id, text: text }.to_json)
@@ -104,6 +108,8 @@ client.subscribe('home/speakers/volume',
                  'home/+/available',
                  'hermes/intent/+',
                  'hermes/dialogueManager/sessionEnded')
+
+register_sound(client, 'confirm', CONFIRM_SOUND_EFFECT)
 
 client.get do |topic, message|
   body = JSON.parse(message) rescue nil

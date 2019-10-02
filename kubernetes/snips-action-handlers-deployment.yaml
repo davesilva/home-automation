@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: snips-action-handlers
-        image: davesilva/home-automation-snips-action-handlers:2.1.0
+        image: davesilva/home-automation-snips-action-handlers:2.2.0
         imagePullPolicy: Always
         env:
         - name: BROKER_HOST
