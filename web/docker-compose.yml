@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   web:
-    image: davesilva/home-automation-web:${TAG:-latest}
+    image: davesilva/home-automation-web:1.5.0
     build:
       context: .
     ports:

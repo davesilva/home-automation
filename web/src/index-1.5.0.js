@@ -1,7 +1,7 @@
 const MIN_VOLUME = 0;
 const MAX_VOLUME = 70;
 
-const client = window.mqtt.connect('mqtt://192.168.1.8:9001');
+const client = window.mqtt.connect('mqtt://mosquitto.home.dmsilva.com:9001');
 
 const app = new Vue({
   el: '#main',
@@ -20,9 +20,6 @@ const app = new Vue({
       available: false,
       input: 1
     },
-    tv: {
-      available: false
-    }
   },
   methods: {
     setProjectorPower: power => {
@@ -47,9 +44,6 @@ const app = new Vue({
       app.hdmiSwitch.input = input;
       client.publish('home/hdmiSwitch/setInput', String(input));
     },
-    sendTV: (topic, message) => {
-      client.publish(`home/tv/${topic}`, message);
-    }
   }
 });
 
@@ -82,9 +76,6 @@ client.on('message', (topic, message) => {
     break;
   case 'home/hdmiSwitch/available':
     app.hdmiSwitch.available = String(message) === 'true';
-    break;
-  case 'home/tv/available':
-    app.tv.available = String(message) === 'true';
     break;
   }
 });

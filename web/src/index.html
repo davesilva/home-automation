@@ -29,7 +29,7 @@
     <script src="https://unpkg.com/mqtt@3.0.0/dist/mqtt.min.js"></script>
 
     <!-- Application script -->
-    <script type="module" src="index-1.4.1.js"></script>
+    <script type="module" src="index-1.5.0.js"></script>
 
     <div class="container" id="main">
      <h1> Projector </h1>
@@ -87,50 +87,6 @@
                    v-on:click="setHdmiSwitchInput(input + 1)" />
             <span class="hdmi-input-label">{{input + 1}}</span>
           </label>
-        </div>
-      </form>
-
-      <h1> TV <span v-if="!tv.available">(Error)</span> </h1>
-      <form>
-        <div class="form-group">
-          <button class="btn btn-primary"
-                  name="power"
-                  v-on:click.prevent="sendTV('setPower', 'true')">Power</button>
-        </div>
-
-        <div class="form-group">
-          <label>Volume</label>
-          <br/>
-          <button class="btn btn-primary"
-                  name="volume_down"
-                  v-on:click.prevent="sendTV('setVolume', 'down')">-</button>
-          <button class="btn btn-primary"
-                  name="volume_up"
-                  v-on:click.prevent="sendTV('setVolume', 'up')">+</button>
-        </div>
-
-        <div class="form-group">
-          <label>Channel</label>
-          <br/>
-          <button class="btn btn-primary"
-                  name="channel_down"
-                  v-on:click.prevent="sendTV('setChannel', 'down')">-</button>
-          <button class="btn btn-primary"
-                  name="channel_up"
-                  v-on:click.prevent="sendTV('setChannel', 'up')">+</button>
-        </div>
-
-        <div class="form-group">
-          <label>Input</label>
-          <br/>
-          <button class="btn btn-primary"
-                  v-on:click.prevent="sendTV('setInput', '0')">TV</button>
-          <button class="btn btn-primary"
-                  v-on:click.prevent="sendTV('setInput', '1')">Video</button>
-          <button class="btn btn-primary"
-                  v-on:click.prevent="sendTV('setInput', '2')">HDMI 1</button>
-          <button class="btn btn-primary"
-                  v-on:click.prevent="sendTV('setInput', '3')">HDMI 2</button>
         </div>
       </form>
     </div>

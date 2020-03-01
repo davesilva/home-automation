@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: davesilva/home-automation-web:1.4.2
+        image: davesilva/home-automation-web:1.5.0
         imagePullPolicy: Always
 ---
 kind: Service
