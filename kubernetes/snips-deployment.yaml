@@ -15,11 +15,9 @@ spec:
     spec:
       securityContext:
         fsGroup: 99
-      nodeSelector:
-        snips-data: 'true'
       containers:
       - name: snips
-        image: davesilva/snips:0.63.3
+        image: davesilva/snips:0.64.0
         imagePullPolicy: Always
         command: ['snips-asr']
         volumeMounts:
@@ -33,9 +31,8 @@ spec:
           value: 'America/New_York'
       volumes:
       - name: usr-share-snips
-        hostPath:
-          path: /var/lib/snips/usr-share-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: usr-share-snips
       - name: config
         configMap:
           name: snips-config
@@ -57,11 +54,9 @@ spec:
     spec:
       securityContext:
         fsGroup: 99
-      nodeSelector:
-        snips-data: 'true'
       containers:
       - name: snips
-        image: davesilva/snips:0.63.3
+        image: davesilva/snips:0.64.0
         imagePullPolicy: Always
         command: ['snips-dialogue']
         volumeMounts:
@@ -75,9 +70,8 @@ spec:
           value: 'America/New_York'
       volumes:
       - name: usr-share-snips
-        hostPath:
-          path: /var/lib/snips/usr-share-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: usr-share-snips
       - name: config
         configMap:
           name: snips-config
@@ -99,11 +93,9 @@ spec:
     spec:
       securityContext:
         fsGroup: 99
-      nodeSelector:
-        snips-data: 'true'
       containers:
       - name: snips
-        image: davesilva/snips:0.63.3
+        image: davesilva/snips:0.64.0
         imagePullPolicy: Always
         command: ['snips-hotword']
         volumeMounts:
@@ -117,9 +109,8 @@ spec:
           value: 'America/New_York'
       volumes:
       - name: usr-share-snips
-        hostPath:
-          path: /var/lib/snips/usr-share-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: usr-share-snips
       - name: config
         configMap:
           name: snips-config
@@ -141,11 +132,9 @@ spec:
     spec:
       securityContext:
         fsGroup: 99
-      nodeSelector:
-        snips-data: 'true'
       containers:
       - name: snips
-        image: davesilva/snips:0.63.3
+        image: davesilva/snips:0.64.0
         imagePullPolicy: Always
         command: ['snips-nlu']
         volumeMounts:
@@ -159,9 +148,8 @@ spec:
           value: 'America/New_York'
       volumes:
       - name: usr-share-snips
-        hostPath:
-          path: /var/lib/snips/usr-share-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: usr-share-snips
       - name: config
         configMap:
           name: snips-config
@@ -183,11 +171,9 @@ spec:
     spec:
       securityContext:
         fsGroup: 99
-      nodeSelector:
-        snips-data: 'true'
       containers:
       - name: snips
-        image: davesilva/snips:0.63.3
+        image: davesilva/snips:0.64.0
         imagePullPolicy: Always
         command: ['snips-tts']
         volumeMounts:
@@ -201,9 +187,8 @@ spec:
           value: 'America/New_York'
       volumes:
       - name: usr-share-snips
-        hostPath:
-          path: /var/lib/snips/usr-share-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: usr-share-snips
       - name: config
         configMap:
           name: snips-config
@@ -225,12 +210,10 @@ spec:
     spec:
       securityContext:
         fsGroup: 99
-      nodeSelector:
-        snips-data: 'true'
       initContainers:
       containers:
       - name: snips
-        image: davesilva/snips:0.63.3
+        image: davesilva/snips:0.64.0
         imagePullPolicy: Always
         command: ['snips-pegasus']
         volumeMounts:
@@ -246,13 +229,11 @@ spec:
           value: 'America/New_York'
       volumes:
       - name: usr-share-snips
-        hostPath:
-          path: /var/lib/snips/usr-share-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: usr-share-snips
       - name: var-lib-snips
-        hostPath:
-          path: /var/lib/snips/var-lib-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: var-lib-snips
       - name: config
         configMap:
           name: snips-config
@@ -285,13 +266,14 @@ spec:
           serviceName: snips-pegasus
           servicePort: 80
 ---
+# Currently not deployed
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: snips-watch
   namespace: home-automation
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: snips-watch
@@ -302,12 +284,10 @@ spec:
     spec:
       securityContext:
         fsGroup: 99
-      nodeSelector:
-        snips-data: 'true'
       containers:
       - &container-spec
         name: projector-room
-        image: davesilva/snips:0.63.3
+        image: davesilva/snips:0.64.0
         imagePullPolicy: Always
         command: ['/bin/sh']
         args:
@@ -342,9 +322,8 @@ spec:
                         --dump_audio_path /usr/share/snips-dumps
       volumes:
       - name: usr-share-snips
-        hostPath:
-          path: /var/lib/snips/usr-share-snips
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: usr-share-snips
       - name: dumps
         hostPath:
           path: /var/lib/snips/dumps
@@ -373,3 +352,31 @@ data:
     address = "0.0.0.0:8080"
     tls_certificate_chain = ""
     tls_private_key = ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: usr-share-snips
+  namespace: home-automation
+  annotations:
+    volume.beta.kubernetes.io/storage-class: nfs-client
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: var-lib-snips
+  namespace: home-automation
+  annotations:
+    volume.beta.kubernetes.io/storage-class: nfs-client
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi

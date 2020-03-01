@@ -1,10 +1,13 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: projector-mqtt-bridge
   namespace: home-automation
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: projector-mqtt-bridge
   template:
     metadata:
       labels:
@@ -19,4 +22,3 @@ spec:
           value: 192.168.1.11
         - name: BROKER_HOST
           value: mosquitto
-
