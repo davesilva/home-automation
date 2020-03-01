@@ -18,7 +18,25 @@ client = MQTT::Client.new(host: BROKER_HOST,
 client.connect
 $logger.info("host=#{BROKER_HOST} status=connected")
 
-client.publish('home/tv/available', 'true', retain: true)
+# Show as unavailable if the lircd socket does not exist
+Thread.new do
+  Kernel.loop do
+    begin
+      if File.socket?('/var/run/lirc/lircd')
+        client.publish('home/projector/available', 'true', retain: true)
+      else
+        raise RuntimeError.new('Lircd socket not found')
+      end
+
+    rescue
+      client.publish('home/projector/available', 'false', retain: true)
+      Kernel.system('systemctl stop lircd.socket')
+      Kernel.system('systemctl start lircd.socket')
+    end
+
+    Kernel.sleep 60
+  end
+end
 
 last_volume_command_at = 0
 
