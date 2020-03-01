@@ -53,7 +53,7 @@ end
 
 def register_sound(client, name, sound_file)
   topic = "hermes/tts/registerSound/#{name}"
-  client.publish(topic, sound_file)
+  client.publish(topic, sound_file, retain: true)
 end
 
 def end_session(client, body, text = nil, success = true)
