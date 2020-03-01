@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   snips-asr: &snips-common
-    image: davesilva/snips:0.63.3
+    image: davesilva/snips:0.64.0
     command: snips-asr
     build:
       context: .

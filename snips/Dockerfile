@@ -9,6 +9,8 @@ RUN groupadd --gid 99 snips && \
   adduser snips sudo && \
   echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
+ENV VERSION=0.64.0
+
 RUN echo "deb [arch=amd64] https://debian.snips.ai/stretch stable main\n \
           deb [arch=armhf] https://raspbian.snips.ai/stretch stable main" \
           > /etc/apt/sources.list.d/snips.list && \
@@ -19,7 +21,9 @@ RUN echo "deb [arch=amd64] https://debian.snips.ai/stretch stable main\n \
                      snips-tts \
                      snips-pegasus \
                      snips-watch \
-                     snips-skill-server
+                     snips-skill-server \
+                     snips-injection && \
+  snips-watch --version | grep $VERSION
 
 RUN mkdir -p /usr/share/snips && \
   chown -R snips /usr/share/snips && \
