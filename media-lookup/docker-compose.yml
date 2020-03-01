@@ -1,0 +1,10 @@
+version: '3.6'
+services:
+  mqtt_bridge:
+    image: davesilva/home-automation-media-lookup:1.0.0
+    build:
+      context: .
+    environment:
+      - BROKER_HOST=192.168.1.8
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
