@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mosquitto
-        image: davesilva/mosquitto:1.6.8
+        image: davesilva/mosquitto:1.4.15-r2
         imagePullPolicy: Always
         ports:
         - containerPort: 1883
@@ -37,6 +37,7 @@ metadata:
     app: mosquitto
     kubernetes.io/name: "mosquitto"
 spec:
+  type: NodePort
   selector:
     app: mosquitto
   ports:

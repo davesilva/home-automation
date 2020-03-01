@@ -17,7 +17,7 @@ defmodule HdmiSwitch.Main do
 
     Logger.info("Finished init")
 
-    {:connect, :init, %{mqtt_client: mqtt_client, uart: uart, input: 0, read_state: :unacked}}
+    {:connect, :init, %{mqtt_client: mqtt_client, uart: uart, input: 0, read_state: :init}}
   end
 
   def on_connect(pid) do
@@ -40,7 +40,7 @@ defmodule HdmiSwitch.Main do
     with :ok <- MqttClient.connect(
         state.mqtt_client,
         client_id: "hdmi-switch",
-        host: "192.168.1.8",
+        host: "mosquitto.home.dmsilva.com",
         port: 1883,
         will_topic: "home/hdmiSwitch/available",
         will_message: "false",
@@ -75,6 +75,7 @@ defmodule HdmiSwitch.Main do
   def handle_info(:connected, state) do
     with :ok <- MqttClient.subscribe(state.mqtt_client, topics: ["home/hdmiSwitch/setInput"], qoses: [1])
     do
+      Logger.info("MQTT Connected")
       poll_switch()
       {:noreply, state}
     else
@@ -85,7 +86,9 @@ defmodule HdmiSwitch.Main do
   @impl true
   def handle_info(:poll_switch, state = %{read_state: :sent}) do
     publish_available("false", state)
-    handle_info(:poll_switch, %{state | read_state: :unacked})
+    Logger.info("No response from HDMI Switch")
+
+    handle_info(:poll_switch, state)
   end
 
   @impl true
