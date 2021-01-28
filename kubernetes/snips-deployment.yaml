@@ -266,14 +266,13 @@ spec:
           serviceName: snips-pegasus
           servicePort: 80
 ---
-# Currently not deployed
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: snips-watch
   namespace: home-automation
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: snips-watch
@@ -293,12 +292,7 @@ spec:
         args:
           - -c
           - >-
-            snips-watch --verbose \
-                        --html \
-                        --dump_audio \
-                        --dump_audio_site projector-room \
-                        --dump_audio_path /usr/share/snips-dumps \
-                        | tee -a /usr/share/snips-dumps/logs.html
+            snips-watch --verbose
         volumeMounts:
         - name: usr-share-snips
           mountPath: /usr/share/snips

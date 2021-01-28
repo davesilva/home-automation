@@ -30,8 +30,8 @@ class DeviceUnavailableError < StandardError
       )
     when 'hdmiSwitch'
       %Q(
-        The H D M I switch control is offline. Make sure the Raspberry Pi
-        in the red case is powered on and connected to the H D M I switch.
+        The H D M I switch control is offline. To fix it, unplug the
+        Raspberry Pi in the red and white case and plug it back in again.
       )
     when 'speakers'
       %Q(
@@ -193,7 +193,7 @@ client.get do |topic, message|
       end
     end
   elsif topic_second == 'intent'
-    end_session(client, body, "I didn't quite catch that.", false)
+    end_session(client, body, nil, false)
   elsif topic_second == 'dialogueManager' && body['termination']['reason'] == 'error'
     end_session(client, body, 'There was an unexpected error in the snips dialogue manager.', false)
   end
