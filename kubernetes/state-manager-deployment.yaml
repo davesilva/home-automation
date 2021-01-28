@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: state-manager
+  namespace: home-automation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: state-manager
+  template:
+    metadata:
+      labels:
+        app: state-manager
+    spec:
+      containers:
+      - name: state-manager
+        image: davesilva/home-automation-state-manager:1.0.0
+        imagePullPolicy: Always
+        env:
+        - name: BROKER_HOST
+          value: mosquitto

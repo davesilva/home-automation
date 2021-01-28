@@ -1,0 +1,8 @@
+version: '3.6'
+services:
+  state_manager:
+    image: davesilva/home-automation-state-manager:1.0.0
+    build:
+      context: .
+    environment:
+      - BROKER_HOST=192.168.1.8
