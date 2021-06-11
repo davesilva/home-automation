@@ -52,9 +52,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: mosquitto
   namespace: home-automation
-  annotations:
-    volume.beta.kubernetes.io/storage-class: nfs-client
 spec:
+  storageClassName: nfs-client
   accessModes:
     - ReadWriteMany
   resources:
