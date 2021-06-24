@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mosquitto
-        image: davesilva/mosquitto:1.4.15-r2
+        image: davesilva/mosquitto:2.0.11
         imagePullPolicy: Always
         ports:
         - containerPort: 1883
@@ -31,11 +31,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mosquitto
+  name: mosquitto-nodeport
   namespace: home-automation
-  labels:
-    app: mosquitto
-    kubernetes.io/name: "mosquitto"
 spec:
   type: NodePort
   selector:
@@ -46,6 +43,22 @@ spec:
   - name: mosquitto-websocket
     port: 9001
   externalIPs: ["192.168.1.8"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto
+  namespace: home-automation
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.10.4
+  selector:
+    app: mosquitto
+  ports:
+  - name: mosquitto-mqtt
+    port: 1883
+  - name: mosquitto-websocket
+    port: 9001
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
