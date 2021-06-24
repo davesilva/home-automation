@@ -17,10 +17,10 @@ client = MQTT::Client.new(host: BROKER_HOST,
 client.connect
 $logger.info("host=#{BROKER_HOST} status=connected")
 
-washing_machine_last_running = nil
-washing_machine_last_stopped = nil
-dryer_last_running = nil
-dryer_last_stopped = nil
+washing_machine_last_running = Time.now
+washing_machine_last_stopped = Time.now
+dryer_last_running = Time.now
+dryer_last_stopped = Time.now
 
 washing_machine_values = []
 dryer_values = []
@@ -43,7 +43,7 @@ Kernel.loop do
       dryer_values.shift if dryer_values.length > 20
       dryer_avg = (dryer_values.sum / dryer_values.length).round(2)
 
-      $logger.info("washing_machine=#{washing_machine} dryer=#{dryer} washing_machine_avg=#{washing_machine_avg} dryer_avg=#{dryer_avg}")
+      $logger.info("washing_machine=#{washing_machine} washing_machine_avg=#{washing_machine_avg} dryer=#{dryer} dryer_avg=#{dryer_avg}")
       if washing_machine_avg > 0.3
         washing_machine_last_running = Time.now
         client.publish('home/laundry/washingMachine/running', 'true', retain: true)
@@ -54,14 +54,14 @@ Kernel.loop do
         end
       end
 
-      if dryer_avg > 0.5
+      if dryer_avg > 1.0
         dryer_last_running = Time.now
         if dryer_last_stopped.nil? || dryer_last_stopped < 30.seconds.ago
           client.publish('home/laundry/dryer/running', 'true', retain: true)
         end
       else
         dryer_last_stopped = Time.now
-        if dryer_last_running.nil? || dryer_last_running < 30.seconds.ago
+        if dryer_last_running.nil? || dryer_last_running < 3.minutes.ago
           client.publish('home/laundry/dryer/running', 'false', retain: true)
         end
       end

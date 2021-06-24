@@ -9,8 +9,11 @@ BROKER_HOST = ENV['BROKER_HOST']
 $logger = Logger.new(STDOUT)
 $logger.level = Logger::INFO
 
+@temp_volume = false
+@volume = nil
 @input = nil
 @input_volume = {}
+@projector_power = false
 
 def send_device_message(client, device, endpoint, message)
   $logger.info("device=#{device} endpoint=#{endpoint} message=#{message}")
@@ -38,15 +41,18 @@ $logger.info("host=#{BROKER_HOST} status=connected")
 client.subscribe('home/speakers/volume',
                  'home/projector/power',
                  'home/hdmiSwitch/input',
-                 'home/state/input/+/lastVolume')
+                 'home/state/input/+/lastVolume',
+                 'hermes/hotword/default/detected',
+                 'hermes/hotword/toggleOn')
 
 client.get do |topic, message|
   body = JSON.parse(message) rescue nil
   topic_last = topic.split('/').last
 
   if topic_last == 'volume'
-    if !@input.nil? && body != 0
-      persist_input_volume(client, @input, body)
+    @volume = body
+    if !@input.nil? && @volume != 0
+      persist_input_volume(client, @input, @volume)
     end
 
     $logger.info("volume=#{body}")
@@ -62,7 +68,8 @@ client.get do |topic, message|
       send_device_message(client, 'speakers', 'setVolume', @input_volume[@input])
     end
   elsif topic == 'home/projector/power'
-    if body == true
+    @projector_power = body
+    if @projector_power
       $logger.info("projector=on")
       if !@input.nil? && !@input_volume[@input].nil?
         send_device_message(client, 'speakers', 'setVolume', @input_volume[@input])
@@ -71,5 +78,15 @@ client.get do |topic, message|
       $logger.info("projector=off")
       send_device_message(client, 'speakers', 'setVolume', 0)
     end
+  elsif topic == 'hermes/hotword/default/detected'
+    if @volume == 0
+      send_device_message(client, 'speakers', 'setVolume', 50)
+      @temp_volume = true
+      $logger.info("Volume boosted for Snips")
+    end
+  elsif topic == 'hermes/hotword/toggleOn' && @temp_volume
+    send_device_message(client, 'speakers', 'setVolume', 0) unless @projector_power
+    @temp_volume = false
+    $logger.info("Volume boost ended")
   end
 end
