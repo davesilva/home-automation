@@ -1,2 +1,0 @@
-defmodule HdmiSwitch do
-end
