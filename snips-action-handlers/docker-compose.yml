@@ -5,4 +5,4 @@ services:
     build:
       context: .
     environment:
-      - BROKER_HOST=192.168.1.8
+      - BROKER_HOST=mqtt.home.dmsilva.com

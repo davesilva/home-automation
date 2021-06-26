@@ -7,7 +7,7 @@ Group=pi
 WorkingDirectory=/home/pi/hdmi-switch-control
 Restart=always
 ExecStart=/usr/bin/ruby main.rb
-Environment=BROKER_HOST=mosquitto.home.dmsilva.com SERIAL_PORT=/dev/ttyUSB0
+Environment=BROKER_HOST=mqtt.home.dmsilva.com SERIAL_PORT=/dev/ttyUSB0
 
 [Install]
 WantedBy=multi-user.target

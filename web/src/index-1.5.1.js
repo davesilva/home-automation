@@ -1,7 +1,7 @@
 const MIN_VOLUME = 0;
 const MAX_VOLUME = 70;
 
-const client = window.mqtt.connect('mqtt://mosquitto.home.dmsilva.com:9001');
+const client = window.mqtt.connect('mqtt://mqtt.home.dmsilva.com:9001');
 
 const app = new Vue({
   el: '#main',

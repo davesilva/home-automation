@@ -7,7 +7,7 @@ Group=pi
 WorkingDirectory=/home/pi/tv
 Restart=always
 ExecStart=/usr/bin/ruby main.rb
-Environment=BROKER_HOST=mosquitto.home.dmsilva.com
+Environment=BROKER_HOST=mqtt.home.dmsilva.com
 
 [Install]
 WantedBy=multi-user.target

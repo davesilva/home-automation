@@ -9,7 +9,7 @@ services:
       - "./config/snips.toml:/etc/snips.toml"
       - "./snips-data:/usr/share/snips"
     extra_hosts:
-      - "mosquitto:192.168.1.8"
+      - "mosquitto:192.168.10.4"
     environment:
       - TZ=America/New_York
   snips-dialogue:
