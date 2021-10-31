@@ -15,8 +15,15 @@ spec:
     spec:
       containers:
       - name: snips-action-handlers
-        image: davesilva/home-automation-snips-action-handlers:2.3.0
-        imagePullPolicy: Always
+        image: davesilva/home-automation-snips-action-handlers:2.4.0
+        imagePullPolicy: IfNotPresent
         env:
         - name: BROKER_HOST
           value: mosquitto
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 0.1
+            memory: 40Mi

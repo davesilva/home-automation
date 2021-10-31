@@ -95,6 +95,7 @@ def input_number(input_name)
   when 'Steam Link' then 1
   when 'XBox One' then 2
   when 'Switch' then 3
+  when 'XBox 360' then 4
   when 'PS4' then 7
   when 'Chromecast' then 8
   end
