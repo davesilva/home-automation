@@ -32,7 +32,7 @@ GEM
       oauth2 (~> 1.1)
       omniauth (~> 1.2)
     public_suffix (3.1.1)
-    rack (2.2.3)
+    rack (2.2.3.1)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
