@@ -1,0 +1,40 @@
+selectDisplayMode(INKPLATE_3BIT);
+clearDisplay();
+{{! drawImage("/bliss.png", 0, 0, true, false); }}
+
+{{#home/people/josh/present}}
+drawImage("/josh.bmp", 24, 25, false, false);
+{{/home/people/josh/present}}
+{{^home/people/josh/present}}
+drawImage("/josh_gray.bmp", 24, 25, true, false);
+{{/home/people/josh/present}}
+
+{{#home/people/will/present}}
+drawImage("/will.bmp", 264, 25, false, false);
+{{/home/people/will/present}}
+{{^home/people/will/present}}
+drawImage("/will_gray.bmp", 264, 25, true, false);
+{{/home/people/will/present}}
+
+{{#home/people/dave/present}}
+drawImage("/dave.bmp", 504, 25, false, false);
+{{/home/people/dave/present}}
+{{^home/people/dave/present}}
+drawImage("/dave_gray.bmp", 504, 25, true, false);
+{{/home/people/dave/present}}
+
+{{#home/people/jen/present}}
+drawImage("/jen.bmp", 744, 25, false, false);
+{{/home/people/jen/present}}
+{{^home/people/jen/present}}
+drawImage("/jen_gray.bmp", 744, 25, true, false);
+{{/home/people/jen/present}}
+
+{{#home/people/nate/present}}
+drawImage("/nate.bmp", 984, 25, false, false);
+{{/home/people/nate/present}}
+{{^home/people/nate/present}}
+drawImage("/nate_gray.bmp", 984, 25, true, false);
+{{/home/people/nate/present}}
+
+display();

@@ -18,7 +18,7 @@ spec:
       containers:
       - name: snips
         image: davesilva/snips:0.64.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['snips-asr']
         volumeMounts:
         - name: usr-share-snips
@@ -29,6 +29,13 @@ spec:
         env:
         - name: TZ
           value: 'America/New_York'
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 4.0
+            memory: 40Mi
       volumes:
       - name: usr-share-snips
         persistentVolumeClaim:
@@ -57,7 +64,7 @@ spec:
       containers:
       - name: snips
         image: davesilva/snips:0.64.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['snips-dialogue']
         volumeMounts:
         - name: usr-share-snips
@@ -68,6 +75,13 @@ spec:
         env:
         - name: TZ
           value: 'America/New_York'
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 4.0
+            memory: 40Mi
       volumes:
       - name: usr-share-snips
         persistentVolumeClaim:
@@ -96,7 +110,7 @@ spec:
       containers:
       - name: snips
         image: davesilva/snips:0.64.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['snips-hotword']
         volumeMounts:
         - name: usr-share-snips
@@ -107,6 +121,13 @@ spec:
         env:
         - name: TZ
           value: 'America/New_York'
+        resources:
+          requests:
+            cpu: 0.25
+            memory: 40Mi
+          limits:
+            cpu: 4.00
+            memory: 40Mi
       volumes:
       - name: usr-share-snips
         persistentVolumeClaim:
@@ -135,7 +156,7 @@ spec:
       containers:
       - name: snips
         image: davesilva/snips:0.64.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['snips-nlu']
         volumeMounts:
         - name: usr-share-snips
@@ -146,6 +167,13 @@ spec:
         env:
         - name: TZ
           value: 'America/New_York'
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 4.0
+            memory: 40Mi
       volumes:
       - name: usr-share-snips
         persistentVolumeClaim:
@@ -174,7 +202,7 @@ spec:
       containers:
       - name: snips
         image: davesilva/snips:0.64.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['snips-tts']
         volumeMounts:
         - name: usr-share-snips
@@ -185,6 +213,13 @@ spec:
         env:
         - name: TZ
           value: 'America/New_York'
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 4.0
+            memory: 40Mi
       volumes:
       - name: usr-share-snips
         persistentVolumeClaim:
@@ -199,7 +234,7 @@ metadata:
   name: snips-pegasus
   namespace: home-automation
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: snips-pegasus
@@ -214,7 +249,7 @@ spec:
       containers:
       - name: snips
         image: davesilva/snips:0.64.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['snips-pegasus']
         volumeMounts:
         - name: usr-share-snips
@@ -238,38 +273,38 @@ spec:
         configMap:
           name: snips-config
 ---
-kind: Service
-apiVersion: v1
-metadata:
-  name: snips-pegasus
-  namespace: home-automation
-spec:
-  selector:
-    app: snips-pegasus
-  ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 8080
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: snips-pegasus
-  namespace: home-automation
-spec:
-  rules:
-  - host: pegasus.home.dmsilva.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: snips-pegasus
-            port:
-              name: http
----
+#kind: Service
+#apiVersion: v1
+#metadata:
+#  name: snips-pegasus
+#  namespace: home-automation
+#spec:
+#  selector:
+#    app: snips-pegasus
+#  ports:
+#  - name: http
+#    protocol: TCP
+#    port: 80
+#    targetPort: 8080
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: snips-pegasus
+#  namespace: home-automation
+#spec:
+#  rules:
+#  - host: pegasus.home.dmsilva.com
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: snips-pegasus
+#            port:
+#              name: http
+#---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -291,7 +326,7 @@ spec:
       - &container-spec
         name: projector-room
         image: davesilva/snips:0.64.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['/bin/sh']
         args:
           - -c
@@ -308,16 +343,13 @@ spec:
         env:
         - name: TZ
           value: 'America/New_York'
-      - <<: *container-spec
-        name: tv-room
-        args:
-          - -c
-          - >-
-            snips-watch --verbose \
-                        --html \
-                        --dump_audio \
-                        --dump_audio_site tv-room \
-                        --dump_audio_path /usr/share/snips-dumps
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 0.1
+            memory: 40Mi
       volumes:
       - name: usr-share-snips
         persistentVolumeClaim:

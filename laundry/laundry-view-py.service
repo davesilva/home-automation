@@ -1,0 +1,13 @@
+[Unit]
+Description=Laundry View Python
+
+[Service]
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/laundry-view
+Restart=always
+ExecStart=/usr/bin/python3 -u main.py
+Environment=BROKER_HOST=mqtt.home.dmsilva.com SERIAL_PORT=/dev/ttyS0
+
+[Install]
+WantedBy=multi-user.target

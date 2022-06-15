@@ -14,22 +14,27 @@ client = MQTT::Client.new(host: BROKER_HOST,
                           will_topic: 'home/speakers/available',
                           will_payload: 'false',
                           will_retain: true)
-client.connect
+client.connect('speakers')
 $logger.info("host=#{BROKER_HOST} status=connected")
 arduino_serial = SerialPort.new(SERIAL_PORT)
+client.publish('home/speakers/available', 'true', retain: true)
 
+last_heartbeat = Time.now
 power = false
 volume_initialized = false
 
 Thread.new do
   Kernel.loop do
     begin
-      client.publish('home/speakers/available', 'true', retain: true)
-
       arduino_serial.each_line do |line|
         (message, value) = line.split
 
         next if message.nil?
+
+        if last_heartbeat < 30.seconds.ago
+          client.publish('home/speakers/available', 'true', retain: true)
+          last_heartbeat = Time.now
+        end
 
         if message == 'ON'
           client.publish('home/speakers/power', 'true', retain: true)

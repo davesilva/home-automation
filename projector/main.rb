@@ -20,11 +20,18 @@ def parse_response(response)
   JSON.parse(response.to_s.gsub(/(\w*):/, '"\1":'), symbolize_names: true)
 end
 
-def projector_post(auth_token, data)
+def projector_post(auth_token, data, retry_count=0)
   HTTParty.post("http://#{PROJECTOR_HOST}/tgi/control.tgi",
                 body: data,
                 headers: { 'Cookie' => auth_token },
                 timeout: 5)
+rescue Net::OpenTimeout, Net::ReadTimeout, Errno::EHOSTUNREACH, Errno::ECONNRESET
+  if retry_count > 4
+    raise UnavailableError
+  else
+    Kernel.sleep(retry_count + 1)
+    projector_post(auth_token, data, retry_count + 1)
+  end
 end
 
 def projector_query(auth_token)
@@ -44,6 +51,9 @@ def projector_login
 
   $logger.info("host=#{PROJECTOR_HOST} status=logged_in")
   cookies.find { |cookie| cookie.start_with?('ATOP=') }
+end
+
+class UnavailableError < RuntimeError
 end
 
 $logger.info("host=#{BROKER_HOST} status=connecting")
@@ -101,7 +111,7 @@ Thread.new do
       old_power = power
       old_input = input
       old_brightness = brightness
-    rescue Net::OpenTimeout, Net::ReadTimeout, Errno::EHOSTUNREACH
+    rescue UnavailableError
       client.publish('home/projector/available', 'false', retain: true)
     end
 

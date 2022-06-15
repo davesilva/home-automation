@@ -1,0 +1,13 @@
+[Unit]
+Description=Game Drive
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/home/rock/game-drive
+Restart=always
+ExecStart=/usr/bin/python3 -u main.py
+Environment=BROKER_HOST=mqtt.home.dmsilva.com ISCSI_HOST=192.168.1.6 BASE_IQN=iqn.2015-06.com.dmsilva
+
+[Install]
+WantedBy=multi-user.target

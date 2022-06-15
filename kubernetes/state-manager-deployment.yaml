@@ -16,7 +16,14 @@ spec:
       containers:
       - name: state-manager
         image: davesilva/home-automation-state-manager:1.0.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: BROKER_HOST
           value: mosquitto
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 0.1
+            memory: 40Mi

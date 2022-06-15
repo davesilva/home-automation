@@ -10,6 +10,7 @@ GEM
     diff-lcs (1.4.4)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
+    i2c (0.4.2)
     minitest (5.14.4)
     mqtt (0.5.0)
     rspec (3.10.0)
@@ -35,6 +36,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (~> 5)
+  i2c
   mqtt
   rspec
   serialport

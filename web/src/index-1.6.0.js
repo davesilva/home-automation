@@ -1,5 +1,5 @@
 const MIN_VOLUME = 0;
-const MAX_VOLUME = 70;
+const MAX_VOLUME = 100;
 
 const client = window.mqtt.connect('mqtt://mqtt.home.dmsilva.com:9001');
 

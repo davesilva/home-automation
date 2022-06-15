@@ -5,6 +5,12 @@ metadata:
   namespace: home-automation
 spec:
   replicas: 1
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: web
@@ -15,8 +21,20 @@ spec:
     spec:
       containers:
       - name: web
-        image: davesilva/home-automation-web:1.5.1
-        imagePullPolicy: Always
+        image: davesilva/home-automation-web:1.6.0
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 0.01
+            memory: 10Mi
+          limits:
+            cpu: 0.01
+            memory: 10Mi
+        readinessProbe:
+          initialDelaySeconds: 5
+          httpGet:
+            path: /
+            port: 80
 ---
 kind: Service
 apiVersion: v1
@@ -24,8 +42,6 @@ metadata:
   name: web
   namespace: home-automation
 spec:
-  type: LoadBalancer
-  loadBalancerIP: 192.168.10.3
   selector:
     app: web
   ports:

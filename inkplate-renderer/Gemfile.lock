@@ -1,0 +1,25 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    async (2.0.0)
+      console (~> 1.10)
+      io-event (~> 1.0.0)
+      timers (~> 4.1)
+    console (1.14.0)
+      fiber-local
+    fiber-local (1.0.0)
+    io-event (1.0.2)
+    mqtt (0.5.0)
+    mustache (1.1.1)
+    timers (4.3.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  async
+  mqtt
+  mustache (~> 1.0)
+
+BUNDLED WITH
+   2.3.7

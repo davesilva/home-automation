@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inkplate-renderer
+  namespace: home-automation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inkplate-renderer
+  template:
+    metadata:
+      labels:
+        app: inkplate-renderer
+    spec:
+      containers:
+      - name: inkplate-renderer
+        image: davesilva/inkplate-renderer:1.1.0
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: inkplate-renderer-templates
+          mountPath: /usr/app/templates
+        env:
+        - name: BROKER_HOST
+          value: mosquitto
+        - name: TEMPLATE_FILE
+          value: /usr/app/templates/template.mustache
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 40Mi
+          limits:
+            cpu: 0.1
+            memory: 40Mi
+      volumes:
+      - name: inkplate-renderer-templates
+        persistentVolumeClaim:
+          claimName: inkplate-renderer
+---
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: inkplate-renderer
+  namespace: home-automation
+spec:
+  storageClassName: nfs-client
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Mi
