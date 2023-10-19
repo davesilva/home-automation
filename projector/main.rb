@@ -70,6 +70,50 @@ $logger.info("host=#{PROJECTOR_HOST} status=connected")
 
 brightness_queue = Queue.new
 
+home_assistant_device_config = {
+  identifiers: ['projector'],
+  name: 'Projector',
+  model: 'P6500',
+  manufacturer: 'Acer'
+}
+home_assistant_availability_config = [
+  {
+    topic: 'home/projector/available',
+    payload_available: 'true',
+    payload_not_available: 'false',
+  }
+]
+home_assistant_power_config = {
+  name: 'Projector',
+  command_topic: 'home/projector/setPower',
+  state_topic: 'home/projector/power',
+  payload_on: 'true',
+  payload_off: 'false',
+  unique_id: 'projector_power',
+  icon: 'mdi:projector',
+  optimistic: true,
+  qos: 2,
+  availability: home_assistant_availability_config,
+  device: home_assistant_device_config
+}
+client.publish('homeassistant/switch/projector/config', home_assistant_power_config.to_json, retain: true)
+
+home_assistant_input_config = {
+  name: 'Projector Input',
+  command_topic: 'home/projector/setInput',
+  state_topic: 'home/projector/input',
+  payload_on: 'true',
+  payload_off: 'false',
+  options: ['1', '2', '3'],
+  unique_id: 'projector_input',
+  icon: 'mdi:video_input_hdmi',
+  optimistic: true,
+  qos: 2,
+  availability: home_assistant_availability_config,
+  device: home_assistant_device_config
+}
+client.publish('homeassistant/select/projector_input/config', home_assistant_input_config.to_json, retain: true)
+
 Thread.new do
   old_power, old_input, old_brightness = nil
   desired_brightness = nil
